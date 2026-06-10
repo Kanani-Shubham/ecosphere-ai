@@ -1,7 +1,7 @@
 # EcoSphere AI
 
 <p align="center">
-  <img src="./screenshots/echo_sphere_logo.png" alt="EcoSphere AI Logo" width="180"/>
+  <img src="./screenshots/echo_sphere_icon.png" alt="EcoSphere AI Logo" width="180"/>
 </p>
 
 <h3 align="center">
