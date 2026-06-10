@@ -1,0 +1,6 @@
+{
+  "name": "EcoSphere AI",
+  "description": "Understand. Track. Reduce. Build a Better Tomorrow.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
