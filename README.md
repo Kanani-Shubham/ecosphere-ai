@@ -22,7 +22,7 @@ https://echosphere-ai.netlify.app/
 
 ### GitHub Repository
 
-https://github.com/Kanani-Shubham
+https://github.com/Kanani-Shubham/ecosphere-ai
 
 ### LinkedIn Project Showcase
 
