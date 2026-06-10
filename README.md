@@ -22,11 +22,7 @@ EcoSphere AI is a next-generation sustainability platform that leverages Artific
 
 ### GitHub Repository
 
-https://github.com/yourusername/ecosphere-ai
-
-### Demo Video
-
-https://youtube.com/watch?v=your-demo-video-id
+https://github.com/Kanani-Shubham
 
 ### LinkedIn Project Showcase
 
