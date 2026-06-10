@@ -18,7 +18,7 @@ EcoSphere AI is a next-generation sustainability platform that leverages Artific
 
 ### Application
 
-[https://your-deployed-app.vercel.app](https://echosphere-ai.netlify.app/)
+https://echosphere-ai.netlify.app/
 
 ### GitHub Repository
 
