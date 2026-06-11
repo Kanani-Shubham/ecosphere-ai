@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calculateStreakUpdate } from '@/src/lib/store';
+import { calculateStreakUpdate } from '@/src/utils/streakCalculator';
 import { UserProfile } from '@/src/types';
 
 describe('Streak Calculation Unit Tests', () => {

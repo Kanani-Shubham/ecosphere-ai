@@ -1,9 +1,28 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { 
-  User, Target, Bell, Settings, ShieldCheck, ChevronRight, HelpCircle, LogOut,
-  Plus, Check, Trash2, Shield, Eye, Globe, Database, ToggleLeft, ToggleRight,
-  Camera, RotateCw, ZoomIn, Info, AlertCircle
+import {
+  User,
+  Target,
+  Bell,
+  Settings,
+  ShieldCheck,
+  ChevronRight,
+  HelpCircle,
+  LogOut,
+  Plus,
+  Check,
+  Trash2,
+  Shield,
+  Eye,
+  Globe,
+  Database,
+  ToggleLeft,
+  ToggleRight,
+  Camera,
+  RotateCw,
+  ZoomIn,
+  Info,
+  AlertCircle
 } from "lucide-react";
 import { UserProfile, Goal } from "../types";
 import { useStore } from "../lib/store";
@@ -26,11 +45,23 @@ export default function ProfileView({
   onResetApp
 }: ProfileViewProps) {
   // Navigation: 'main' | 'goals' | 'notifications' | 'settings' | 'admin' | 'edit_profile'
-  const [panelMode, setPanelMode] = useState<'main' | 'goals' | 'notifications' | 'settings' | 'admin' | 'edit_profile'>('main');
+  const [panelMode, setPanelMode] = useState<
+    "main" | "goals" | "notifications" | "settings" | "admin" | "edit_profile"
+  >("main");
 
   // Read streak and totalXP reactively from the central Zustand user store for consistency
-  const currentStreak = useStore((state) => state.user?.currentStreak) ?? useStore.getState().user?.currentStreak ?? profile.currentStreak ?? profile.streak ?? 0;
-  const totalXP = useStore((state) => state.user?.totalXP) ?? useStore.getState().user?.totalXP ?? profile.totalXP ?? profile.xp ?? 0;
+  const currentStreak =
+    useStore((state) => state.user?.currentStreak) ??
+    useStore.getState().user?.currentStreak ??
+    profile.currentStreak ??
+    profile.streak ??
+    0;
+  const totalXP =
+    useStore((state) => state.user?.totalXP) ??
+    useStore.getState().user?.totalXP ??
+    profile.totalXP ??
+    profile.xp ??
+    0;
 
   const updateProfile = useStore((state) => state.updateProfile);
 
@@ -44,7 +75,9 @@ export default function ProfileView({
   const [editCountry, setEditCountry] = useState(profile.country || "");
   const [editLifestyle, setEditLifestyle] = useState(profile.lifestyleType || "Standard");
   const [editDiet, setEditDiet] = useState(profile.dietPreference || "Balanced");
-  const [editTransport, setEditTransport] = useState(profile.transportationPreference || "Gasoline Car");
+  const [editTransport, setEditTransport] = useState(
+    profile.transportationPreference || "Gasoline Car"
+  );
   const [editGoals, setEditGoals] = useState(profile.sustainabilityGoals || "");
   const [editImage, setEditImage] = useState<string | null>(profile.profileImage || null);
 
@@ -58,7 +91,7 @@ export default function ProfileView({
 
   // Sync state with parent profile prop when opening edit panel
   useEffect(() => {
-    if (panelMode === 'edit_profile') {
+    if (panelMode === "edit_profile") {
       setEditName(profile.name || "");
       setEditUsername(profile.username || "");
       setEditEmail(profile.email || "");
@@ -78,7 +111,7 @@ export default function ProfileView({
   // Canvas real-time generator based on Zoom and Rotation sliders
   useEffect(() => {
     if (!editImage || !canvasRef.current) return;
-    
+
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
@@ -93,7 +126,7 @@ export default function ProfileView({
       ctx.save();
       ctx.translate(size / 2, size / 2);
       ctx.rotate((cropRotation * Math.PI) / 180);
-      
+
       const drawWidth = size * cropZoom;
       const drawHeight = size * cropZoom;
       ctx.drawImage(img, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
@@ -103,7 +136,7 @@ export default function ProfileView({
   }, [editImage, cropZoom, cropRotation]);
 
   // Detect unsaved changes
-  const hasUnsavedChanges = 
+  const hasUnsavedChanges =
     editName !== (profile.name || "") ||
     editUsername !== (profile.username || "") ||
     editEmail !== (profile.email || "") ||
@@ -213,7 +246,6 @@ export default function ProfileView({
   return (
     <div className="w-full pb-24">
       <AnimatePresence mode="wait">
-        
         {/* VIEW 1: Main Profile Center (S12) */}
         {panelMode === "main" && (
           <motion.div
@@ -226,16 +258,22 @@ export default function ProfileView({
             {/* Upper Avatar card (S12 style) */}
             <div className="bg-gradient-to-tr from-brand-600 to-emerald-500 rounded-3xl p-6 text-white shadow-md text-center flex flex-col items-center relative overflow-hidden">
               <div className="absolute top-0 left-0 w-24 h-24 bg-white/5 rounded-full pointer-events-none -translate-x-6 -translate-y-6" />
-              
+
               <div className="w-18 h-18 rounded-full border-4 border-white bg-brand-100 flex items-center justify-center overflow-hidden font-black text-brand-800 text-2.5xl shadow-sm shrink-0">
                 {profile.profileImage ? (
-                  <img src={profile.profileImage} alt={profile.name} className="w-full h-full object-cover" />
+                  <img
+                    src={profile.profileImage}
+                    alt={profile.name}
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
                   profile.name[0]?.toUpperCase()
                 )}
               </div>
               <h3 className="text-xl font-bold mt-3 font-display">{profile.name}</h3>
-              <p className="text-xs text-emerald-100 font-semibold mt-0.5 uppercase tracking-wider">{profile.levelRank} • Level {profile.level}</p>
+              <p className="text-xs text-emerald-100 font-semibold mt-0.5 uppercase tracking-wider">
+                {profile.levelRank} • Level {profile.level}
+              </p>
 
               {/* Achievements banner summary */}
               <div className="grid grid-cols-3 gap-2 bg-white/10 rounded-2xl p-3.5 w-full mt-5 text-center text-xs">
@@ -244,7 +282,9 @@ export default function ProfileView({
                   <p className="text-[10px] text-emerald-100/90 mt-0.5 leading-none">XP</p>
                 </div>
                 <div className="border-x border-white/15">
-                  <p className="font-extrabold text-sm">{useStore.getState().badges.filter(b => b.unlocked).length}</p>
+                  <p className="font-extrabold text-sm">
+                    {useStore.getState().badges.filter((b) => b.unlocked).length}
+                  </p>
                   <p className="text-[10px] text-emerald-100/90 mt-0.5 leading-none">Badges</p>
                 </div>
                 <div>
@@ -257,16 +297,41 @@ export default function ProfileView({
             {/* List links section (S12) */}
             <div className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm">
               {[
-                { label: "Edit Profile Info", desc: "Change name, contact, lifestyle preferences", icon: User, action: () => setPanelMode("edit_profile") },
-                { label: "My Goals", desc: "Manage personal climate targets", icon: Target, action: () => setPanelMode("goals") },
-                { label: "Notification Center", desc: "Alerts, streaks, milestone logs", icon: Bell, action: () => setPanelMode("notifications") },
-                { label: "App Settings", desc: "Change language, theme, system logs", icon: Settings, action: () => setPanelMode("settings") },
-                { label: "Local DB Diagnostics", desc: "Monitor localized IndexedDB telemetry", icon: ShieldCheck, action: () => setPanelMode("admin") }
+                {
+                  label: "Edit Profile Info",
+                  desc: "Change name, contact, lifestyle preferences",
+                  icon: User,
+                  action: () => setPanelMode("edit_profile")
+                },
+                {
+                  label: "My Goals",
+                  desc: "Manage personal climate targets",
+                  icon: Target,
+                  action: () => setPanelMode("goals")
+                },
+                {
+                  label: "Notification Center",
+                  desc: "Alerts, streaks, milestone logs",
+                  icon: Bell,
+                  action: () => setPanelMode("notifications")
+                },
+                {
+                  label: "App Settings",
+                  desc: "Change language, theme, system logs",
+                  icon: Settings,
+                  action: () => setPanelMode("settings")
+                },
+                {
+                  label: "Local DB Diagnostics",
+                  desc: "Monitor localized IndexedDB telemetry",
+                  icon: ShieldCheck,
+                  action: () => setPanelMode("admin")
+                }
               ].map((link, i) => {
                 const Icon = link.icon;
                 return (
-                  <div 
-                    key={i} 
+                  <div
+                    key={i}
                     onClick={link.action}
                     className="flex justify-between items-center p-4 border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-all cursor-pointer"
                   >
@@ -276,7 +341,9 @@ export default function ProfileView({
                       </div>
                       <div>
                         <p className="text-xs font-bold text-slate-850">{link.label}</p>
-                        <p className="text-[10px] text-slate-400 mt-0.5 leading-none">{link.desc}</p>
+                        <p className="text-[10px] text-slate-400 mt-0.5 leading-none">
+                          {link.desc}
+                        </p>
                       </div>
                     </div>
                     <ChevronRight className="w-4 h-4 text-slate-350 shrink-0" />
@@ -288,7 +355,11 @@ export default function ProfileView({
             {/* Help & Logout / Reset Area */}
             <div className="flex gap-3">
               <button
-                onClick={() => alert("Frequently asked questions & carbon manuals can be requested at help@ecosphere-ai.com.")}
+                onClick={() =>
+                  alert(
+                    "Frequently asked questions & carbon manuals can be requested at help@ecosphere-ai.com."
+                  )
+                }
                 className="flex-1 py-3.5 border border-slate-250 hover:bg-slate-50 rounded-xl font-bold text-xs text-slate-600 transition-all flex items-center justify-center gap-1.5 leading-none select-none"
               >
                 <HelpCircle className="w-4.5 h-4.5" /> Help Support
@@ -313,7 +384,7 @@ export default function ProfileView({
           >
             {/* Header control */}
             <div className="flex items-center gap-3">
-              <button 
+              <button
                 onClick={() => setPanelMode("main")}
                 className="bg-slate-100 p-2.5 rounded-xl hover:bg-slate-200 transition-all font-bold text-xs text-slate-600"
               >
@@ -321,17 +392,26 @@ export default function ProfileView({
               </button>
               <div>
                 <h3 className="text-lg font-bold text-slate-800">Goal Center</h3>
-                <p className="text-[11px] text-slate-400 font-medium leading-none">Configure custom carbon benchmarks</p>
+                <p className="text-[11px] text-slate-400 font-medium leading-none">
+                  Configure custom carbon benchmarks
+                </p>
               </div>
             </div>
 
             {/* Add Custom Goal form (S18) */}
-            <form onSubmit={handleAddGoalSubmit} className="bg-white border rounded-3xl p-5 shadow-sm space-y-4">
-              <h4 className="font-extrabold text-xs text-slate-400 uppercase tracking-widest">Create New Goal</h4>
-              
+            <form
+              onSubmit={handleAddGoalSubmit}
+              className="bg-white border rounded-3xl p-5 shadow-sm space-y-4"
+            >
+              <h4 className="font-extrabold text-xs text-slate-400 uppercase tracking-widest">
+                Create New Goal
+              </h4>
+
               <div className="grid grid-cols-2 gap-3">
                 <div className="col-span-2">
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Goal Metric Description</label>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">
+                    Goal Metric Description
+                  </label>
                   <input
                     type="text"
                     placeholder="e.g. Save 30 kg transport emissions"
@@ -341,7 +421,9 @@ export default function ProfileView({
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Category</label>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">
+                    Category
+                  </label>
                   <select
                     value={newGoalCategory}
                     onChange={(e) => setNewGoalCategory(e.target.value as any)}
@@ -355,7 +437,9 @@ export default function ProfileView({
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Target Reduction (kg)</label>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">
+                    Target Reduction (kg)
+                  </label>
                   <input
                     type="number"
                     placeholder="e.g. 30"
@@ -377,11 +461,10 @@ export default function ProfileView({
             {/* List active/completed goals (S18) */}
             <div className="bg-white rounded-3xl border p-5 shadow-sm space-y-4">
               <div className="flex justify-between items-center">
-                <h4 className="font-extrabold text-xs text-slate-400 uppercase tracking-wider">Active Goals Progress</h4>
-                <button 
-                  onClick={onClearGoals}
-                  className="text-[10px] font-bold text-rose-600"
-                >
+                <h4 className="font-extrabold text-xs text-slate-400 uppercase tracking-wider">
+                  Active Goals Progress
+                </h4>
+                <button onClick={onClearGoals} className="text-[10px] font-bold text-rose-600">
                   Clear All
                 </button>
               </div>
@@ -390,13 +473,18 @@ export default function ProfileView({
                 {goals.map((g) => {
                   const percent = Math.min(100, Math.round((g.currentValue / g.targetValue) * 100));
                   return (
-                    <div key={g.id} className="p-3.5 bg-slate-50/50 rounded-2xl border border-slate-100">
+                    <div
+                      key={g.id}
+                      className="p-3.5 bg-slate-50/50 rounded-2xl border border-slate-100"
+                    >
                       <div className="flex items-center justify-between">
                         <div>
-                          <span className="text-[9px] font-bold uppercase tracking-wide bg-brand-50 text-brand-700 px-2 py-0.5 rounded-md">{g.category}</span>
+                          <span className="text-[9px] font-bold uppercase tracking-wide bg-brand-50 text-brand-700 px-2 py-0.5 rounded-md">
+                            {g.category}
+                          </span>
                           <h5 className="font-bold text-xs text-slate-850 mt-1.5">{g.title}</h5>
                         </div>
-                        
+
                         {!g.completed ? (
                           <button
                             onClick={() => onToggleGoalComplete(g.id)}
@@ -414,10 +502,15 @@ export default function ProfileView({
                       <div className="mt-3.5 space-y-1.5">
                         <div className="flex justify-between text-[10px] font-bold text-slate-400 font-mono">
                           <span>Progress: {percent}%</span>
-                          <span>{g.currentValue} / {g.targetValue} kg CO₂</span>
+                          <span>
+                            {g.currentValue} / {g.targetValue} kg CO₂
+                          </span>
                         </div>
                         <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                          <div className="h-full bg-brand-500 rounded-full transition-all duration-500" style={{ width: `${percent}%` }} />
+                          <div
+                            className="h-full bg-brand-500 rounded-full transition-all duration-500"
+                            style={{ width: `${percent}%` }}
+                          />
                         </div>
                       </div>
                     </div>
@@ -437,7 +530,7 @@ export default function ProfileView({
             className="space-y-4"
           >
             <div className="flex items-center gap-3">
-              <button 
+              <button
                 onClick={() => setPanelMode("main")}
                 className="bg-slate-100 p-2.5 rounded-xl hover:bg-slate-200 transition-all font-bold text-xs text-slate-600"
               >
@@ -445,26 +538,52 @@ export default function ProfileView({
               </button>
               <div>
                 <h3 className="text-lg font-bold text-slate-800">Notification Center</h3>
-                <p className="text-[11px] text-slate-400 font-medium leading-none font-mono">Smart notifications triggers</p>
+                <p className="text-[11px] text-slate-400 font-medium leading-none font-mono">
+                  Smart notifications triggers
+                </p>
               </div>
             </div>
 
             {/* List historic alerts */}
             <div className="space-y-3" id="notifications-feed">
               {[
-                { title: "Mission Completed!", detail: "You completed active green transit, earning +25 XP & 100 Points.", time: "10m ago" },
-                { title: "Streak Milestone Achieved", detail: "Congratulations on logging your active green commute for 12 days straight!", time: "1h ago" },
-                { title: "New Achievement Unlocked", detail: "EcoSphere created your profile and unlocked 'Green Starter' badge collection.", time: "2h ago" },
-                { title: "Weekly Report Ready", detail: "June Carbon audit is formulated and ready for PDF generation on Stats tab.", time: "4h ago" }
+                {
+                  title: "Mission Completed!",
+                  detail: "You completed active green transit, earning +25 XP & 100 Points.",
+                  time: "10m ago"
+                },
+                {
+                  title: "Streak Milestone Achieved",
+                  detail:
+                    "Congratulations on logging your active green commute for 12 days straight!",
+                  time: "1h ago"
+                },
+                {
+                  title: "New Achievement Unlocked",
+                  detail:
+                    "EcoSphere created your profile and unlocked 'Green Starter' badge collection.",
+                  time: "2h ago"
+                },
+                {
+                  title: "Weekly Report Ready",
+                  detail:
+                    "June Carbon audit is formulated and ready for PDF generation on Stats tab.",
+                  time: "4h ago"
+                }
               ].map((notif, idx) => (
-                <div key={idx} className="bg-white border rounded-2xl p-4 shadow-sm flex items-start gap-3.5">
+                <div
+                  key={idx}
+                  className="bg-white border rounded-2xl p-4 shadow-sm flex items-start gap-3.5"
+                >
                   <div className="w-8 h-8 rounded-xl bg-slate-50 text-slate-500 flex items-center justify-center shrink-0">
                     <Bell className="w-4 h-4" />
                   </div>
                   <div>
                     <h5 className="font-bold text-slate-800 text-xs">{notif.title}</h5>
                     <p className="text-xs text-slate-500 mt-1 leading-normal">{notif.detail}</p>
-                    <span className="text-[9px] text-slate-400 font-bold uppercase mt-2 block">{notif.time}</span>
+                    <span className="text-[9px] text-slate-400 font-bold uppercase mt-2 block">
+                      {notif.time}
+                    </span>
                   </div>
                 </div>
               ))}
@@ -481,7 +600,7 @@ export default function ProfileView({
             className="space-y-6"
           >
             <div className="flex items-center gap-3">
-              <button 
+              <button
                 onClick={() => setPanelMode("main")}
                 className="bg-slate-100 p-2.5 rounded-xl hover:bg-slate-200 transition-all font-bold text-xs text-slate-600"
               >
@@ -489,56 +608,81 @@ export default function ProfileView({
               </button>
               <div>
                 <h3 className="text-lg font-bold text-slate-800">Application Settings</h3>
-                <p className="text-[11px] text-slate-400 font-medium leading-none">Formulate system values</p>
+                <p className="text-[11px] text-slate-400 font-medium leading-none">
+                  Formulate system values
+                </p>
               </div>
             </div>
 
             {/* Form list elements (S23) */}
             <div className="bg-white border rounded-3xl overflow-hidden shadow-sm divide-y">
-              
               <div className="p-4 flex justify-between items-center">
                 <div>
                   <p className="text-xs font-bold text-slate-800">Carbon Units</p>
-                  <p className="text-[10px] text-slate-400 font-medium mt-0.5">Measurement scale metrics</p>
+                  <p className="text-[10px] text-slate-400 font-medium mt-0.5">
+                    Measurement scale metrics
+                  </p>
                 </div>
-                <span className="text-xs font-bold text-slate-600 font-mono bg-slate-100 py-1 px-2.5 rounded-lg">kg CO₂e</span>
+                <span className="text-xs font-bold text-slate-600 font-mono bg-slate-100 py-1 px-2.5 rounded-lg">
+                  kg CO₂e
+                </span>
               </div>
 
               <div className="p-4 flex justify-between items-center">
                 <div>
                   <p className="text-xs font-bold text-slate-800">Interface Theme</p>
-                  <p className="text-[10px] text-slate-400 font-medium mt-0.5">Optimized light mode display</p>
+                  <p className="text-[10px] text-slate-400 font-medium mt-0.5">
+                    Optimized light mode display
+                  </p>
                 </div>
-                <span className="text-xs font-bold text-emerald-700 font-mono bg-emerald-50 py-1 px-2.5 rounded-lg border border-emerald-100">Light Mode</span>
+                <span className="text-xs font-bold text-emerald-700 font-mono bg-emerald-50 py-1 px-2.5 rounded-lg border border-emerald-100">
+                  Light Mode
+                </span>
               </div>
 
               <div className="p-4 flex justify-between items-center">
                 <div>
                   <p className="text-xs font-bold text-slate-800">Smart Notifications</p>
-                  <p className="text-[10px] text-slate-400 font-medium mt-0.5">Weekly stats and active streak alerts</p>
+                  <p className="text-[10px] text-slate-400 font-medium mt-0.5">
+                    Weekly stats and active streak alerts
+                  </p>
                 </div>
                 <button onClick={() => saveSettings({ dailyReminder: !settings?.dailyReminder })}>
-                  {settings?.dailyReminder ? <ToggleRight className="w-8 h-8 text-emerald-600 cursor-pointer" /> : <ToggleLeft className="w-8 h-8 text-slate-350 cursor-pointer" />}
+                  {settings?.dailyReminder ? (
+                    <ToggleRight className="w-8 h-8 text-emerald-600 cursor-pointer" />
+                  ) : (
+                    <ToggleLeft className="w-8 h-8 text-slate-350 cursor-pointer" />
+                  )}
                 </button>
               </div>
 
               <div className="p-4 flex justify-between items-center">
                 <div>
                   <p className="text-xs font-bold text-slate-800">AI Personalization</p>
-                  <p className="text-[10px] text-slate-400 font-medium mt-0.5">Unlock Gemini custom suggestions</p>
+                  <p className="text-[10px] text-slate-400 font-medium mt-0.5">
+                    Unlock Gemini custom suggestions
+                  </p>
                 </div>
-                <button onClick={() => saveSettings({ achievementAlerts: !settings?.achievementAlerts })}>
-                  {settings?.achievementAlerts ? <ToggleRight className="w-8 h-8 text-emerald-600 cursor-pointer" /> : <ToggleLeft className="w-8 h-8 text-slate-350 cursor-pointer" />}
+                <button
+                  onClick={() => saveSettings({ achievementAlerts: !settings?.achievementAlerts })}
+                >
+                  {settings?.achievementAlerts ? (
+                    <ToggleRight className="w-8 h-8 text-emerald-600 cursor-pointer" />
+                  ) : (
+                    <ToggleLeft className="w-8 h-8 text-slate-350 cursor-pointer" />
+                  )}
                 </button>
               </div>
 
               <div className="p-4 flex justify-between items-center">
                 <div>
                   <p className="text-xs font-bold text-slate-800">Interface Language</p>
-                  <p className="text-[10px] text-slate-400 font-medium mt-0.5">Internationalization systems</p>
+                  <p className="text-[10px] text-slate-400 font-medium mt-0.5">
+                    Internationalization systems
+                  </p>
                 </div>
-                <select 
-                  value={settings?.language || "en"} 
+                <select
+                  value={settings?.language || "en"}
                   onChange={(e) => saveSettings({ language: e.target.value as any })}
                   className="bg-slate-50 border p-2 rounded-xl text-xs font-bold text-slate-700 font-sans"
                 >
@@ -552,7 +696,6 @@ export default function ProfileView({
                   <option value="zh">中文 (Chinese)</option>
                 </select>
               </div>
-
             </div>
           </motion.div>
         )}
@@ -566,7 +709,7 @@ export default function ProfileView({
             className="space-y-6"
           >
             <div className="flex items-center gap-3">
-              <button 
+              <button
                 onClick={() => setPanelMode("main")}
                 className="bg-slate-100 p-2.5 rounded-xl hover:bg-slate-200 transition-all font-bold text-xs text-slate-600"
               >
@@ -574,47 +717,82 @@ export default function ProfileView({
               </button>
               <div>
                 <h3 className="text-lg font-bold text-slate-800 flex items-center gap-1.5 font-display">
-                  Local DB Diagnostics <span className="text-[9px] bg-emerald-50 border border-emerald-100 text-emerald-700 font-mono px-2 py-0.5 rounded-md select-none uppercase">Persistent Registry</span>
+                  Local DB Diagnostics{" "}
+                  <span className="text-[9px] bg-emerald-50 border border-emerald-100 text-emerald-700 font-mono px-2 py-0.5 rounded-md select-none uppercase">
+                    Persistent Registry
+                  </span>
                 </h3>
-                <p className="text-[11px] text-slate-400 font-medium leading-none">Internal IndexedDB metadata structures</p>
+                <p className="text-[11px] text-slate-400 font-medium leading-none">
+                  Internal IndexedDB metadata structures
+                </p>
               </div>
             </div>
 
             {/* Telemetry Metrics Row (Dynamic counts from database) */}
             <div className="grid grid-cols-3 gap-3">
               <div className="bg-white border rounded-2xl p-3 shadow-sm select-none text-slate-800">
-                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Logged Actions</p>
-                <p className="text-lg font-extrabold text-slate-800 mt-1">{(goals?.length || 0) + (useStore.getState().activities?.length || 0)}</p>
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                  Logged Actions
+                </p>
+                <p className="text-lg font-extrabold text-slate-800 mt-1">
+                  {(goals?.length || 0) + (useStore.getState().activities?.length || 0)}
+                </p>
                 <p className="text-[8px] text-emerald-600 mt-0.5 font-semibold">● Active State</p>
               </div>
 
               <div className="bg-white border rounded-2xl p-3 shadow-sm select-none text-slate-800">
-                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Eco Activities</p>
-                <p className="text-lg font-extrabold text-slate-800 mt-1">{useStore.getState().activities?.length || 0}</p>
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                  Eco Activities
+                </p>
+                <p className="text-lg font-extrabold text-slate-800 mt-1">
+                  {useStore.getState().activities?.length || 0}
+                </p>
                 <p className="text-[8px] text-slate-400 mt-0.5">Stored local records</p>
               </div>
 
               <div className="bg-white border rounded-2xl p-3 shadow-sm select-none text-slate-800">
-                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Badges Unleased</p>
-                <p className="text-lg font-extrabold text-emerald-600 mt-1">{useStore.getState().badges.filter(b => b.unlocked).length}</p>
-                <p className="text-[8px] text-emerald-650 mt-0.5 font-semibold">Earned milestone unlocks</p>
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                  Badges Unleased
+                </p>
+                <p className="text-lg font-extrabold text-emerald-600 mt-1">
+                  {useStore.getState().badges.filter((b) => b.unlocked).length}
+                </p>
+                <p className="text-[8px] text-emerald-650 mt-0.5 font-semibold">
+                  Earned milestone unlocks
+                </p>
               </div>
             </div>
 
             {/* Quick telemetry logs of activities */}
             <div className="bg-white border rounded-3xl p-5 shadow-sm space-y-4 text-slate-800">
-              <h4 className="font-extrabold text-xs text-slate-400 uppercase tracking-wider">Local IndexedDB Storage Schema</h4>
-              
+              <h4 className="font-extrabold text-xs text-slate-400 uppercase tracking-wider">
+                Local IndexedDB Storage Schema
+              </h4>
+
               <div className="space-y-2.5">
                 {[
-                  { label: "Active Climate Goals persistent rows", value: `${goals?.length || 0} items` },
-                  { label: "Social community feed elements", value: `${useStore.getState().community?.length || 0} verified posts` },
-                  { label: "Client notifications registry count", value: `${useStore.getState().notifications?.length || 0} logged rows` },
+                  {
+                    label: "Active Climate Goals persistent rows",
+                    value: `${goals?.length || 0} items`
+                  },
+                  {
+                    label: "Social community feed elements",
+                    value: `${useStore.getState().community?.length || 0} verified posts`
+                  },
+                  {
+                    label: "Client notifications registry count",
+                    value: `${useStore.getState().notifications?.length || 0} logged rows`
+                  },
                   { label: "User eco XP rating", value: `${totalXP} total XP` }
                 ].map((item, id) => (
-                  <div key={id} className="flex justify-between items-center p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                  <div
+                    key={id}
+                    className="flex justify-between items-center p-2.5 bg-slate-50 rounded-xl border border-slate-100"
+                  >
                     <span className="text-[11px] text-slate-600 font-semibold">{item.label}</span>
-                    <span className="text-xs font-bold text-slate-800 font-mono text-right">{item.value}</span>
+                    <span className="text-xs font-bold text-slate-800 font-mono text-right">
+                      {item.value}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -633,7 +811,7 @@ export default function ProfileView({
             {/* Header control */}
             <div className="flex items-center justify-between border-b pb-3 border-slate-100">
               <div className="flex items-center gap-3">
-                <button 
+                <button
                   onClick={() => {
                     if (hasUnsavedChanges) {
                       if (!confirm("Discard unsaved changes? Your inputs will be lost.")) return;
@@ -646,7 +824,9 @@ export default function ProfileView({
                 </button>
                 <div>
                   <h3 className="text-sm font-bold">Edit Climate Profile</h3>
-                  <p className="text-[10px] text-slate-400 font-medium">Verify credentials & lifestyle indicators</p>
+                  <p className="text-[10px] text-slate-400 font-medium">
+                    Verify credentials & lifestyle indicators
+                  </p>
                 </div>
               </div>
 
@@ -666,8 +846,10 @@ export default function ProfileView({
 
             {/* Profile Avatar Crop / Rotate section */}
             <div className="bg-white border rounded-3xl p-5 shadow-sm space-y-4">
-              <h4 className="font-extrabold text-[11px] text-slate-400 uppercase tracking-widest">Profile Picture Optimizer</h4>
-              
+              <h4 className="font-extrabold text-[11px] text-slate-400 uppercase tracking-widest">
+                Profile Picture Optimizer
+              </h4>
+
               <div className="flex flex-col sm:flex-row gap-5 items-center">
                 {/* Real-time scaled canvas cropper view wrapper */}
                 <div className="relative w-40 h-40 rounded-full border-2 border-slate-150 overflow-hidden bg-slate-50 flex items-center justify-center">
@@ -676,7 +858,9 @@ export default function ProfileView({
                   ) : (
                     <div className="text-center text-slate-400">
                       <Camera className="w-10 h-10 mx-auto" />
-                      <span className="text-[10px] uppercase font-bold tracking-wider mt-1 block">No Image</span>
+                      <span className="text-[10px] uppercase font-bold tracking-wider mt-1 block">
+                        No Image
+                      </span>
                     </div>
                   )}
                 </div>
@@ -716,7 +900,9 @@ export default function ProfileView({
 
                       {/* Rotate triggers */}
                       <div className="flex justify-between items-center bg-slate-50 p-2 rounded-xl border border-slate-100 font-sans">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase">Rotation Control</span>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase">
+                          Rotation Control
+                        </span>
                         <button
                           type="button"
                           onClick={() => setCropRotation((prev) => (prev + 90) % 360)}
@@ -742,11 +928,15 @@ export default function ProfileView({
 
             {/* Profile fields form */}
             <div className="bg-white border rounded-3xl p-5 shadow-sm space-y-4">
-              <h4 className="font-extrabold text-[11px] text-slate-400 uppercase tracking-widest">Personal Identification</h4>
-              
+              <h4 className="font-extrabold text-[11px] text-slate-400 uppercase tracking-widest">
+                Personal Identification
+              </h4>
+
               <div className="grid grid-cols-2 gap-3">
                 <div className="col-span-2 sm:col-span-1">
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Display Name</label>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                    Display Name
+                  </label>
                   <input
                     type="text"
                     value={editName}
@@ -757,7 +947,9 @@ export default function ProfileView({
                 </div>
 
                 <div className="col-span-2 sm:col-span-1">
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Username</label>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                    Username
+                  </label>
                   <input
                     type="text"
                     value={editUsername}
@@ -768,7 +960,9 @@ export default function ProfileView({
                 </div>
 
                 <div className="col-span-2 sm:col-span-1">
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Email ID</label>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                    Email ID
+                  </label>
                   <input
                     type="email"
                     value={editEmail}
@@ -779,7 +973,9 @@ export default function ProfileView({
                 </div>
 
                 <div className="col-span-2 sm:col-span-1">
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Contact Phone</label>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                    Contact Phone
+                  </label>
                   <input
                     type="tel"
                     value={editPhone}
@@ -790,7 +986,9 @@ export default function ProfileView({
                 </div>
 
                 <div className="col-span-2 sm:col-span-1">
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">City</label>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                    City
+                  </label>
                   <input
                     type="text"
                     value={editCity}
@@ -801,7 +999,9 @@ export default function ProfileView({
                 </div>
 
                 <div className="col-span-2 sm:col-span-1">
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Country</label>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                    Country
+                  </label>
                   <input
                     type="text"
                     value={editCountry}
@@ -812,7 +1012,9 @@ export default function ProfileView({
                 </div>
 
                 <div className="col-span-2">
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Bio Description</label>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                    Bio Description
+                  </label>
                   <textarea
                     value={editBio}
                     onChange={(e) => setEditBio(e.target.value)}
@@ -825,11 +1027,15 @@ export default function ProfileView({
 
             {/* Lifestyle preferences section */}
             <div className="bg-white border rounded-3xl p-5 shadow-sm space-y-4">
-              <h4 className="font-extrabold text-[11px] text-slate-400 uppercase tracking-widest">Habit Preferences</h4>
-              
+              <h4 className="font-extrabold text-[11px] text-slate-400 uppercase tracking-widest">
+                Habit Preferences
+              </h4>
+
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Lifestyle Type</label>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                    Lifestyle Type
+                  </label>
                   <select
                     value={editLifestyle}
                     onChange={(e) => setEditLifestyle(e.target.value)}
@@ -843,7 +1049,9 @@ export default function ProfileView({
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Dietary Preference</label>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                    Dietary Preference
+                  </label>
                   <select
                     value={editDiet}
                     onChange={(e) => setEditDiet(e.target.value)}
@@ -857,7 +1065,9 @@ export default function ProfileView({
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Main Transport</label>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                    Main Transport
+                  </label>
                   <select
                     value={editTransport}
                     onChange={(e) => setEditTransport(e.target.value)}
@@ -871,7 +1081,9 @@ export default function ProfileView({
                 </div>
 
                 <div className="col-span-1 sm:col-span-3">
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Personal Sustainability Goals</label>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                    Personal Sustainability Goals
+                  </label>
                   <input
                     type="text"
                     value={editGoals}
@@ -902,9 +1114,9 @@ export default function ProfileView({
                 onClick={handleProfileSave}
                 disabled={!hasUnsavedChanges}
                 className={`flex-1 py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all ${
-                  hasUnsavedChanges 
-                    ? 'bg-brand-600 hover:bg-brand-700 text-white shadow shadow-emerald-400/10' 
-                    : 'bg-slate-150 text-slate-400 cursor-not-allowed'
+                  hasUnsavedChanges
+                    ? "bg-brand-600 hover:bg-brand-700 text-white shadow shadow-emerald-400/10"
+                    : "bg-slate-150 text-slate-400 cursor-not-allowed"
                 }`}
               >
                 Save Changes
@@ -912,7 +1124,6 @@ export default function ProfileView({
             </div>
           </motion.div>
         )}
-
       </AnimatePresence>
     </div>
   );

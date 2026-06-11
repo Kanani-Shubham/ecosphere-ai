@@ -1,0 +1,3 @@
+export const BADGE_STREAK_THRESHOLD = 5;
+export const BADGE_CO2_SAVED_THRESHOLD = 50;
+export const BADGE_LEVEL_THRESHOLD = 10;

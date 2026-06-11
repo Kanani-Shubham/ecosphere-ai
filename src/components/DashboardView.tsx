@@ -1,9 +1,27 @@
 import React, { useState } from "react";
 import { motion } from "motion/react";
-import { 
-  Sparkles, Leaf, Award, Flame, Navigation, Cpu, ArrowRight, Zap, ListCollapse,
-  Activity as ActIcon, Check, Calendar, Globe, Compass, Wallet, BookOpen, Users,
-  Building, Map, AlertTriangle, AlertCircle
+import {
+  Sparkles,
+  Leaf,
+  Award,
+  Flame,
+  Navigation,
+  Cpu,
+  ArrowRight,
+  Zap,
+  ListCollapse,
+  Activity as ActIcon,
+  Check,
+  Calendar,
+  Globe,
+  Compass,
+  Wallet,
+  BookOpen,
+  Users,
+  Building,
+  Map,
+  AlertTriangle,
+  AlertCircle
 } from "lucide-react";
 import { UserProfile, Activity, Challenge } from "../types";
 import { useStore } from "../lib/store";
@@ -15,23 +33,41 @@ interface DashboardViewProps {
   onAddCustomActivity: (act: Activity) => void;
 }
 
-export default function DashboardView({ profile, activities, onNavigate, onAddCustomActivity }: DashboardViewProps) {
+export default function DashboardView({
+  profile,
+  activities,
+  onNavigate,
+  onAddCustomActivity
+}: DashboardViewProps) {
   // Read streak and ecoPoints from the central Zustand user store for consistency
-  const currentStreak = useStore((state) => state.user?.currentStreak) ?? useStore.getState().user?.currentStreak ?? 0;
-  const userEcoPoints = useStore((state) => state.user?.ecoPoints) ?? useStore.getState().user?.ecoPoints ?? profile.ecoPoints ?? 0;
+  const currentStreak =
+    useStore((state) => state.user?.currentStreak) ?? useStore.getState().user?.currentStreak ?? 0;
+  const userEcoPoints =
+    useStore((state) => state.user?.ecoPoints) ??
+    useStore.getState().user?.ecoPoints ??
+    profile.ecoPoints ??
+    0;
   const lastRewardClaimDate = useStore((state) => state.user?.lastRewardClaimDate);
 
   // Today's mission completion trigger calculated dynamically (anti-exploit, persists on refresh/redirect)
-  const todayStr = new Date().toISOString().split('T')[0];
-  const missionClaimed = profile.dailyMissionClaimedDate === todayStr || profile.lastClaimDate === todayStr || profile.lastRewardClaimDate === todayStr || lastRewardClaimDate === todayStr;
+  const todayStr = new Date().toISOString().split("T")[0];
+  const missionClaimed =
+    profile.dailyMissionClaimedDate === todayStr ||
+    profile.lastClaimDate === todayStr ||
+    profile.lastRewardClaimDate === todayStr ||
+    lastRewardClaimDate === todayStr;
 
   // Quick helper to categorize recent activities
   const recentActivities = activities.slice(-3).reverse();
 
   // Dynamic calculations from persistent IndexedDB activities
-  const loggedEmissions = activities.filter(a => a.co2Value > 0).reduce((sum, a) => sum + a.co2Value, 0);
-  const loggedSavings = activities.filter(a => a.co2Value < 0).reduce((sum, a) => sum + Math.abs(a.co2Value), 0);
-  
+  const loggedEmissions = activities
+    .filter((a) => a.co2Value > 0)
+    .reduce((sum, a) => sum + a.co2Value, 0);
+  const loggedSavings = activities
+    .filter((a) => a.co2Value < 0)
+    .reduce((sum, a) => sum + Math.abs(a.co2Value), 0);
+
   // Clean offset score representing player footprint
   const netCarbon = Math.max(0, Number((loggedEmissions - loggedSavings).toFixed(1)));
   const totalTreesSaved = Math.max(0, Number((loggedSavings / 22).toFixed(1)));
@@ -57,14 +93,18 @@ export default function DashboardView({ profile, activities, onNavigate, onAddCu
             Here's your eco impact today
           </p>
         </div>
-        <button 
+        <button
           onClick={() => onNavigate("profile")}
           aria-label={`View or edit ${profile.name}'s profile and goals`}
           title="Go to Profile"
           className="w-10 h-10 rounded-full border-2 border-brand-500 bg-brand-100 flex items-center justify-center overflow-hidden font-bold text-brand-800 cursor-pointer shadow-sm hover:scale-105 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1 transition-all shrink-0"
         >
           {profile.profileImage ? (
-            <img src={profile.profileImage} alt={`Profile avatar of ${profile.name}`} className="w-full h-full object-cover" />
+            <img
+              src={profile.profileImage}
+              alt={`Profile avatar of ${profile.name}`}
+              className="w-full h-full object-cover"
+            />
           ) : (
             <span>{profile.name[0]?.toUpperCase()}</span>
           )}
@@ -72,10 +112,13 @@ export default function DashboardView({ profile, activities, onNavigate, onAddCu
       </div>
 
       {/* Main Carbon Arc radial scorecard */}
-      <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm flex flex-col items-center relative overflow-hidden" id="carbon-circle-card">
+      <div
+        className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm flex flex-col items-center relative overflow-hidden"
+        id="carbon-circle-card"
+      >
         {/* Background visual graphics */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-bl-full pointer-events-none opacity-60" />
-        
+
         <div className="relative w-40 h-40 flex items-center justify-center">
           <svg className="w-full h-full transform -rotate-90">
             <circle
@@ -90,7 +133,7 @@ export default function DashboardView({ profile, activities, onNavigate, onAddCu
               stroke="#22c55e"
               fill="transparent"
               strokeWidth={stroke}
-              strokeDasharray={circumference + ' ' + circumference}
+              strokeDasharray={circumference + " " + circumference}
               style={{ strokeDashoffset }}
               strokeLinecap="round"
               r={normalizedRadius}
@@ -100,17 +143,27 @@ export default function DashboardView({ profile, activities, onNavigate, onAddCu
             />
           </svg>
           <div className="absolute flex flex-col items-center justify-center text-center">
-            <span className="text-3.5xl font-extrabold text-slate-800 font-display">{netCarbon}</span>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">kg CO₂e</span>
+            <span className="text-3.5xl font-extrabold text-slate-800 font-display">
+              {netCarbon}
+            </span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">
+              kg CO₂e
+            </span>
             <span className="mt-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-              {netCarbon === 0 ? "Zero Footprint" : netCarbon <= 150 ? "Excellent Impact" : netCarbon <= 300 ? "Good Impact" : "High Footprint"}
+              {netCarbon === 0
+                ? "Zero Footprint"
+                : netCarbon <= 150
+                  ? "Excellent Impact"
+                  : netCarbon <= 300
+                    ? "Good Impact"
+                    : "High Footprint"}
             </span>
           </div>
         </div>
 
         {/* Highlight Stats subcards (S3 Trees saved, Eco points) */}
         <div className="grid grid-cols-2 gap-3 w-full mt-6">
-          <button 
+          <button
             type="button"
             onClick={() => onNavigate("offset")}
             aria-label={`View dynamic trees saved statistics. Currently ${totalTreesSaved} trees saved`}
@@ -121,13 +174,15 @@ export default function DashboardView({ profile, activities, onNavigate, onAddCu
               <Leaf className="w-5 h-5 text-emerald-600" aria-hidden="true" />
             </div>
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">Trees Saved</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">
+                Trees Saved
+              </p>
               <p className="text-base font-bold text-slate-800 mt-1">{totalTreesSaved}</p>
               <p className="text-[9px] text-slate-400 mt-0.5 leading-none">From Reductions</p>
             </div>
           </button>
 
-          <button 
+          <button
             type="button"
             onClick={() => onNavigate("wallet")}
             aria-label={`View wallet and rewards. Currently ${userEcoPoints.toLocaleString()} eco points`}
@@ -138,8 +193,12 @@ export default function DashboardView({ profile, activities, onNavigate, onAddCu
               <Award className="w-5 h-5 text-amber-600" aria-hidden="true" />
             </div>
             <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">Eco Points</p>
-              <p className="text-base font-bold text-slate-800 mt-1">{userEcoPoints.toLocaleString()}</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">
+                Eco Points
+              </p>
+              <p className="text-base font-bold text-slate-800 mt-1">
+                {userEcoPoints.toLocaleString()}
+              </p>
               <p className="text-[9px] text-slate-400 mt-0.5 leading-none">Total Points</p>
             </div>
           </button>
@@ -147,7 +206,10 @@ export default function DashboardView({ profile, activities, onNavigate, onAddCu
       </div>
 
       {/* S15 Today's Mission & Streak Banner */}
-      <div className="bg-emerald-600 rounded-3xl p-5 text-white shadow-md relative overflow-hidden" id="todays-mission-card">
+      <div
+        className="bg-emerald-600 rounded-3xl p-5 text-white shadow-md relative overflow-hidden"
+        id="todays-mission-card"
+      >
         {/* Abstract orbits */}
         <div className="absolute right-0 bottom-0 top-0 w-36 bg-emerald-500/30 rounded-l-full pointer-events-none" />
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -157,11 +219,17 @@ export default function DashboardView({ profile, activities, onNavigate, onAddCu
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded">Active Streak</span>
-                <span className="text-xs font-semibold text-emerald-100">🔥 Day {currentStreak}</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded">
+                  Active Streak
+                </span>
+                <span className="text-xs font-semibold text-emerald-100">
+                  🔥 Day {currentStreak}
+                </span>
               </div>
               <h4 className="font-bold text-base mt-1">Walk instead of drive today</h4>
-              <p className="text-xs text-emerald-100 mt-0.5">Estimated Savings: <span className="font-bold text-white">2.5 kg CO₂e</span></p>
+              <p className="text-xs text-emerald-100 mt-0.5">
+                Estimated Savings: <span className="font-bold text-white">2.5 kg CO₂e</span>
+              </p>
             </div>
           </div>
           <div>
@@ -187,10 +255,11 @@ export default function DashboardView({ profile, activities, onNavigate, onAddCu
 
       {/* Feature Navigation Sections Quick Actions Grid */}
       <div>
-        <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Quick Eco Tools</h3>
+        <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">
+          Quick Eco Tools
+        </h3>
         <div className="grid grid-cols-2 gap-3" id="actions-grid">
-          
-          <button 
+          <button
             type="button"
             onClick={() => onNavigate("ai-coach")}
             aria-label="AI Eco Coach - Chat live with Gemini for custom eco reduction tips"
@@ -202,11 +271,13 @@ export default function DashboardView({ profile, activities, onNavigate, onAddCu
             </div>
             <div>
               <p className="font-bold text-sm text-slate-800 mt-2">AI Eco Coach</p>
-              <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">Chat live with Gemini for custom eco reduction tips</p>
+              <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">
+                Chat live with Gemini for custom eco reduction tips
+              </p>
             </div>
           </button>
 
-          <button 
+          <button
             type="button"
             onClick={() => onNavigate("ai-insights")}
             aria-label="AI Insights - Personalized feedback, analysis, and custom goals"
@@ -218,11 +289,13 @@ export default function DashboardView({ profile, activities, onNavigate, onAddCu
             </div>
             <div>
               <p className="font-bold text-sm text-slate-800 mt-2">AI Insights</p>
-              <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">Personalized feedback, analysis, and custom goals</p>
+              <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">
+                Personalized feedback, analysis, and custom goals
+              </p>
             </div>
           </button>
 
-          <button 
+          <button
             type="button"
             onClick={() => onNavigate("what-if")}
             aria-label="Carbon What-If - Hypothesize EV, Vegan, solar changes in real time"
@@ -234,11 +307,13 @@ export default function DashboardView({ profile, activities, onNavigate, onAddCu
             </div>
             <div>
               <p className="font-bold text-sm text-slate-800 mt-2">Carbon What-If</p>
-              <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">Hypothesize EV, Vegan, solar changes in real time</p>
+              <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">
+                Hypothesize EV, Vegan, solar changes in real time
+              </p>
             </div>
           </button>
 
-          <button 
+          <button
             type="button"
             onClick={() => onNavigate("digital-twin")}
             aria-label="Digital Twin - Carbon projections on Current Self vs 2050 Earth"
@@ -250,11 +325,13 @@ export default function DashboardView({ profile, activities, onNavigate, onAddCu
             </div>
             <div>
               <p className="font-bold text-sm text-slate-800 mt-2">Digital Twin</p>
-              <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">Carbon projections on Current Self vs 2050 Earth</p>
+              <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">
+                Carbon projections on Current Self vs 2050 Earth
+              </p>
             </div>
           </button>
 
-          <button 
+          <button
             type="button"
             onClick={() => onNavigate("energy-analyzer")}
             aria-label="Energy Analyzer - Log appliances and audit household grid draw"
@@ -266,11 +343,13 @@ export default function DashboardView({ profile, activities, onNavigate, onAddCu
             </div>
             <div>
               <p className="font-bold text-sm text-slate-800 mt-2">Energy Analyzer</p>
-              <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">Log appliances and audit household grid draw</p>
+              <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">
+                Log appliances and audit household grid draw
+              </p>
             </div>
           </button>
 
-          <button 
+          <button
             type="button"
             onClick={() => onNavigate("travel-impact")}
             aria-label="Travel Impact - Route comparisons of Car vs Train, EV & Walk"
@@ -282,11 +361,13 @@ export default function DashboardView({ profile, activities, onNavigate, onAddCu
             </div>
             <div>
               <p className="font-bold text-sm text-slate-800 mt-2">Travel Impact</p>
-              <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">Route comparisons of Car vs Train, EV & Walk</p>
+              <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">
+                Route comparisons of Car vs Train, EV & Walk
+              </p>
             </div>
           </button>
 
-          <button 
+          <button
             type="button"
             onClick={() => onNavigate("offset")}
             aria-label="Carbon Offset - Fund certified solar and plantation initiatives"
@@ -298,11 +379,13 @@ export default function DashboardView({ profile, activities, onNavigate, onAddCu
             </div>
             <div>
               <p className="font-bold text-sm text-slate-800 mt-2">Carbon Offset</p>
-              <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">Fund certified solar and plantation initiatives</p>
+              <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">
+                Fund certified solar and plantation initiatives
+              </p>
             </div>
           </button>
 
-          <button 
+          <button
             type="button"
             onClick={() => onNavigate("learning-hub")}
             aria-label="Learning Hub - Sustaining education lessons, quizzes & metrics"
@@ -314,16 +397,17 @@ export default function DashboardView({ profile, activities, onNavigate, onAddCu
             </div>
             <div>
               <p className="font-bold text-sm text-slate-800 mt-2">Learning Hub</p>
-              <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">Sustaining education lessons, quizzes & metrics</p>
+              <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">
+                Sustaining education lessons, quizzes & metrics
+              </p>
             </div>
           </button>
-
         </div>
       </div>
 
       {/* S35, S36 Supplemental Timelines, Planner, Heatmaps, Org grids */}
       <div className="grid grid-cols-2 gap-3">
-        <button 
+        <button
           type="button"
           onClick={() => onNavigate("timeline")}
           aria-label="Eco Timeline - view historical log charts and metrics"
@@ -339,7 +423,7 @@ export default function DashboardView({ profile, activities, onNavigate, onAddCu
           </div>
         </button>
 
-        <button 
+        <button
           type="button"
           onClick={() => onNavigate("heatmap")}
           aria-label="Emissions Grid - view Category heat map of your footprint"
@@ -355,7 +439,7 @@ export default function DashboardView({ profile, activities, onNavigate, onAddCu
           </div>
         </button>
 
-        <button 
+        <button
           type="button"
           onClick={() => onNavigate("family-dashboard")}
           aria-label="Family Dashboard - co-track dynamic carbon impact metrics"
@@ -371,7 +455,7 @@ export default function DashboardView({ profile, activities, onNavigate, onAddCu
           </div>
         </button>
 
-        <button 
+        <button
           type="button"
           onClick={() => onNavigate("org-dashboard")}
           aria-label="Organization Dashboard - view community carbon score"
@@ -392,7 +476,7 @@ export default function DashboardView({ profile, activities, onNavigate, onAddCu
       <div className="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold text-sm text-slate-800">Recent Activities</h3>
-          <button 
+          <button
             type="button"
             className="text-[11px] font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 px-2.5 py-1 rounded-lg cursor-pointer transform hover:translate-x-0.5 transition-all focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1"
             onClick={() => onNavigate("stats")}
@@ -406,35 +490,51 @@ export default function DashboardView({ profile, activities, onNavigate, onAddCu
           <div className="py-6 text-center text-slate-400 flex flex-col items-center justify-center">
             <ActIcon className="w-10 h-10 text-slate-300 stroke-[1.25] mb-2" />
             <p className="text-sm font-semibold select-all">No activity recorded yet.</p>
-            <p className="text-xs text-slate-400 max-w-xs mt-1">Scan a grocery receipt, log device electricity, or record daily challenge travel on the scan tab to populate scores.</p>
+            <p className="text-xs text-slate-400 max-w-xs mt-1">
+              Scan a grocery receipt, log device electricity, or record daily challenge travel on
+              the scan tab to populate scores.
+            </p>
           </div>
         ) : (
           <div className="space-y-3">
             {recentActivities.map((act) => (
-              <div key={act.id} className="flex items-center justify-between p-3 bg-slate-50/50 rounded-2xl border border-slate-100/50">
+              <div
+                key={act.id}
+                className="flex items-center justify-between p-3 bg-slate-50/50 rounded-2xl border border-slate-100/50"
+              >
                 <div className="flex items-center gap-3">
-                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${
-                    act.co2Value < 0 ? "bg-emerald-100 text-emerald-600" : "bg-rose-100 text-rose-600"
-                  }`}>
+                  <div
+                    className={`w-8 h-8 rounded-xl flex items-center justify-center ${
+                      act.co2Value < 0
+                        ? "bg-emerald-100 text-emerald-600"
+                        : "bg-rose-100 text-rose-600"
+                    }`}
+                  >
                     <Leaf className="w-4.5 h-4.5" />
                   </div>
                   <div>
                     <p className="font-semibold text-xs text-slate-800">{act.title}</p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">{act.date} • {act.category.toUpperCase()}</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">
+                      {act.date} • {act.category.toUpperCase()}
+                    </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className={`font-bold text-xs ${act.co2Value < 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
-                    {act.co2Value > 0 ? '+' : ''}{act.co2Value} kg
+                  <p
+                    className={`font-bold text-xs ${act.co2Value < 0 ? "text-emerald-600" : "text-rose-600"}`}
+                  >
+                    {act.co2Value > 0 ? "+" : ""}
+                    {act.co2Value} kg
                   </p>
-                  <p className="text-[9px] text-slate-400 font-semibold font-mono">+{act.pointsEarned} Pts</p>
+                  <p className="text-[9px] text-slate-400 font-semibold font-mono">
+                    +{act.pointsEarned} Pts
+                  </p>
                 </div>
               </div>
             ))}
           </div>
         )}
       </div>
-
     </div>
   );
 }

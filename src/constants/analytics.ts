@@ -1,0 +1,3 @@
+export const EMISSIONS_HIGH_ALERT_KG = 1000;
+export const EMISSIONS_TARGET_MONTHLY_KG = 500;
+export const GRAPH_TENSION = 0.4;

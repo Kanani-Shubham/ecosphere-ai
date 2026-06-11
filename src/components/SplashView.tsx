@@ -13,7 +13,7 @@ export default function SplashView({ onStart }: SplashViewProps) {
       <div className="absolute top-20 left-1/2 -translate-x-1/2 w-72 h-72 bg-emerald-200/40 rounded-full blur-3xl pointer-events-none" />
 
       {/* Top Section: Logo & Branding */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1 }}
@@ -32,7 +32,10 @@ export default function SplashView({ onStart }: SplashViewProps) {
       </motion.div>
 
       {/* Center Section: Earth Orbit Animation */}
-      <div className="relative w-72 h-72 flex items-center justify-center my-6 z-10" id="splash-globe">
+      <div
+        className="relative w-72 h-72 flex items-center justify-center my-6 z-10"
+        id="splash-globe"
+      >
         {/* Orbit paths */}
         <div className="absolute inset-0 border border-emerald-200/50 rounded-full animate-[spin_12s_linear_infinite]" />
         <div className="absolute w-56 h-56 border border-emerald-300/30 rounded-full -rotate-45" />
@@ -73,16 +76,18 @@ export default function SplashView({ onStart }: SplashViewProps) {
           <Globe className="w-full h-full text-brand-100/30 absolute stroke-[1.2]" />
           <div className="absolute w-12 h-6 bg-brand-200/30 rounded-full blur-sm top-8 left-10 transform -rotate-12" />
           <div className="absolute w-14 h-8 bg-brand-300/20 rounded-full blur-sm bottom-12 right-6 transform rotate-45" />
-          
+
           <div className="z-10 text-center flex flex-col items-center">
             <span className="text-3xl font-bold text-white drop-shadow">243</span>
-            <span className="text-xs font-semibold text-emerald-100 uppercase tracking-wider drop-shadow-sm">kg CO₂e</span>
+            <span className="text-xs font-semibold text-emerald-100 uppercase tracking-wider drop-shadow-sm">
+              kg CO₂e
+            </span>
           </div>
         </motion.div>
       </div>
 
       {/* Bottom Section: Tagline & Onboarding triggers */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5, duration: 0.8 }}
@@ -102,16 +107,16 @@ export default function SplashView({ onStart }: SplashViewProps) {
           id="btn-start-journey"
         >
           <span>Start Journey</span>
-          <motion.span
-            animate={{ x: [0, 4, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          >
+          <motion.span animate={{ x: [0, 4, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
             →
           </motion.span>
         </button>
 
         <p className="text-xs text-neutral-500 mt-4 font-medium">
-          Already have an account? <span className="text-brand-600 hover:underline cursor-pointer" onClick={onStart}>Login</span>
+          Already have an account?{" "}
+          <span className="text-brand-600 hover:underline cursor-pointer" onClick={onStart}>
+            Login
+          </span>
         </p>
       </motion.div>
     </div>

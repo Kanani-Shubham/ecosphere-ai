@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { 
-  Home, Trophy, Camera, BarChart2, User, Leaf, RefreshCw
-} from "lucide-react";
+import { Home, Trophy, Camera, BarChart2, User, Leaf, RefreshCw } from "lucide-react";
 
 // Views imports
 import SplashView from "./components/SplashView";
@@ -41,14 +39,16 @@ export default function App() {
     completeChallenge,
     addCommunityPost,
     likeCommunityPost,
-    commentCommunityPost,
+    commentCommunityPost
   } = useStore();
 
   // Navigation Screens: "splash" | "onboarding" | "app"
   const [currentScreen, setCurrentScreen] = useState<"splash" | "onboarding" | "app">("splash");
 
   // Active Bottom Tab: "home" | "challenges" | "scan" | "stats" | "profile"
-  const [activeTab, setActiveTab ] = useState<"home" | "challenges" | "scan" | "stats" | "profile">("home");
+  const [activeTab, setActiveTab] = useState<"home" | "challenges" | "scan" | "stats" | "profile">(
+    "home"
+  );
 
   // Active Auxiliary View (if any): null | "ai-coach" | "ai-insights" | "what-if" | "offset" etc...
   const [activeAuxView, setActiveAuxView] = useState<string | null>(null);
@@ -76,7 +76,7 @@ export default function App() {
     await useStore.getState().addRewardTransaction(
       "Account Signup Bonus: Welcome Reward",
       1250, // EcoPoints
-      150,  // XP
+      150, // XP
       "onboarding-bonus"
     );
     setCurrentScreen("app");
@@ -105,7 +105,10 @@ export default function App() {
 
   if (isLoadingStore) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center" id="app-loading-screen">
+      <div
+        className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center"
+        id="app-loading-screen"
+      >
         <div className="w-16 h-16 bg-brand-50 rounded-2xl flex items-center justify-center mb-4 text-brand-600 animate-pulse">
           <Leaf className="w-8 h-8 animate-spin-slow" />
         </div>
@@ -116,10 +119,12 @@ export default function App() {
           Status: <span className="text-brand-600">{dbInitStatus.toUpperCase()}</span>
         </p>
         <p className="text-xs text-slate-500 mt-2 px-6 max-w-xs">{dbStatusMessage}</p>
-        
-        {(dbInitStatus === 'corrupted' || dbInitStatus === 'recovered') && (
+
+        {(dbInitStatus === "corrupted" || dbInitStatus === "recovered") && (
           <div className="mt-4 p-3 bg-amber-50 border border-amber-100 rounded-xl max-w-xs">
-            <p className="text-[10px] text-amber-700 font-semibold uppercase tracking-wider">Storage Repair Protocol</p>
+            <p className="text-[10px] text-amber-700 font-semibold uppercase tracking-wider">
+              Storage Repair Protocol
+            </p>
             <p className="text-[10px] text-slate-600 mt-1 leading-snug">
               Indices corrected successfully. No user data were affected.
             </p>
@@ -129,18 +134,22 @@ export default function App() {
     );
   }
 
-  const lang = settings?.language || 'en';
+  const lang = settings?.language || "en";
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-slate-50 text-slate-900 flex justify-center items-stretch" id="app-container">
-        
+      <div
+        className="min-h-screen bg-slate-50 text-slate-900 flex justify-center items-stretch"
+        id="app-container"
+      >
         {/* Absolute Mobile-Framed Width bounds constraint to preserve design aesthetics */}
         <div className="w-full max-w-md bg-slate-50 flex flex-col justify-between border-x border-slate-100 shadow-2xl relative min-h-screen">
-          
-          <main id="main-content" className="flex-grow p-4 md:p-6 overflow-y-auto w-full outline-none" tabIndex={-1}>
+          <main
+            id="main-content"
+            className="flex-grow p-4 md:p-6 overflow-y-auto w-full outline-none"
+            tabIndex={-1}
+          >
             <AnimatePresence mode="wait">
-              
               {/* SCREEN 1: Splash Screen */}
               {currentScreen === "splash" && (
                 <motion.div
@@ -177,9 +186,9 @@ export default function App() {
                 >
                   {/* Upper auxiliary header view route back */}
                   {activeAuxView ? (
-                    <AuxiliaryViews 
-                      viewName={activeAuxView} 
-                      onBack={() => setActiveAuxView(null)} 
+                    <AuxiliaryViews
+                      viewName={activeAuxView}
+                      onBack={() => setActiveAuxView(null)}
                       profile={profile}
                       onAddCustomActivity={addActivity}
                     />
@@ -187,22 +196,24 @@ export default function App() {
                     <>
                       {/* TAB CORE RENDER LOOPS */}
                       {activeTab === "home" && (
-                        <DashboardView 
-                          profile={profile} 
-                          activities={activities} 
+                        <DashboardView
+                          profile={profile}
+                          activities={activities}
                           onNavigate={handleNavigateView}
                           onAddCustomActivity={addActivity}
                         />
                       )}
 
                       {activeTab === "challenges" && (
-                        <ChallengesView 
-                          profile={profile} 
+                        <ChallengesView
+                          profile={profile}
                           challenges={challenges}
                           badges={badges}
                           community={community}
                           onCompleteChallenge={completeChallenge}
-                          onPostCommunity={(content) => addCommunityPost(content, "Community Contribution")}
+                          onPostCommunity={(content) =>
+                            addCommunityPost(content, "Community Contribution")
+                          }
                           onLikePost={likeCommunityPost}
                           onAddComment={commentCommunityPost}
                           onAddCustomActivity={addActivity}
@@ -210,21 +221,14 @@ export default function App() {
                       )}
 
                       {activeTab === "scan" && (
-                        <ScanView 
-                          onAddCustomActivity={addActivity} 
-                          userProfile={profile} 
-                        />
+                        <ScanView onAddCustomActivity={addActivity} userProfile={profile} />
                       )}
 
-                      {activeTab === "stats" && (
-                        <AnalyticsView 
-                          activities={activities} 
-                        />
-                      )}
+                      {activeTab === "stats" && <AnalyticsView activities={activities} />}
 
                       {activeTab === "profile" && (
-                        <ProfileView 
-                          profile={profile} 
+                        <ProfileView
+                          profile={profile}
                           goals={goals}
                           onAddGoal={addGoal}
                           onToggleGoalComplete={toggleGoalComplete}
@@ -236,13 +240,16 @@ export default function App() {
                   )}
                 </motion.div>
               )}
-
             </AnimatePresence>
           </main>
 
           {/* BOTTOM NAVIGATION SHELL BLOCK */}
           {currentScreen === "app" && !activeAuxView && (
-            <nav aria-label="Primary Navigation" className="sticky bottom-0 bg-white border-t border-slate-100 px-4 py-3 pb-5 flex justify-between items-center z-40 rounded-t-3xl shadow-lg shadow-teal-900/10" id="bottom-navigation">
+            <nav
+              aria-label="Primary Navigation"
+              className="sticky bottom-0 bg-white border-t border-slate-100 px-4 py-3 pb-5 flex justify-between items-center z-40 rounded-t-3xl shadow-lg shadow-teal-900/10"
+              id="bottom-navigation"
+            >
               {[
                 { id: "home", label: getLocalized(lang, "nav_home"), icon: Home },
                 { id: "challenges", label: getLocalized(lang, "nav_challenges"), icon: Trophy },
@@ -263,15 +270,19 @@ export default function App() {
                     aria-current={isSelected ? "page" : undefined}
                     title={tab.label}
                     className={`flex flex-col items-center justify-center p-2 rounded-2xl transition-all relative focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1 ${
-                      isSelected ? 'text-brand-600 scale-105 font-bold' : 'text-slate-400 hover:text-slate-700'
+                      isSelected
+                        ? "text-brand-600 scale-105 font-bold"
+                        : "text-slate-400 hover:text-slate-700"
                     }`}
                   >
                     <Icon className="w-5.5 h-5.5" aria-hidden="true" />
-                    <span className="text-[9px] mt-1 tracking-wider uppercase font-extrabold">{tab.label}</span>
+                    <span className="text-[9px] mt-1 tracking-wider uppercase font-extrabold">
+                      {tab.label}
+                    </span>
                     {isSelected && (
-                      <motion.div 
-                        layoutId="nav-pill" 
-                        className="absolute -top-1 w-5 h-1 bg-brand-500 rounded-full" 
+                      <motion.div
+                        layoutId="nav-pill"
+                        className="absolute -top-1 w-5 h-1 bg-brand-500 rounded-full"
                         id={`nav-pill-${tab.id}`}
                       />
                     )}
@@ -280,7 +291,6 @@ export default function App() {
               })}
             </nav>
           )}
-
         </div>
       </div>
     </ErrorBoundary>

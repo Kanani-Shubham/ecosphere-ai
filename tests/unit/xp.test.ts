@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getProgression } from '@/src/lib/store';
+import { getProgression } from '@/src/utils/xpCalculator';
 
 describe('XP Progression System Unit Tests', () => {
   it('correctly maps lower bounds of the XP level system', () => {

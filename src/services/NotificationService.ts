@@ -1,7 +1,7 @@
-import { db, DbNotification } from '../lib/db';
-import { useStore } from '../lib/store';
+import { db, DbNotification } from "../lib/db";
+import { useStore } from "../lib/store";
 
-export type NotificationType = 'success' | 'warning' | 'achievement' | 'information' | 'system';
+export type NotificationType = "success" | "warning" | "achievement" | "information" | "system";
 
 export class NotificationService {
   /**
@@ -10,17 +10,24 @@ export class NotificationService {
   public static async createNotification(
     title: string,
     body: string,
-    category: DbNotification['category'],
-    type: NotificationType = 'information'
+    category: DbNotification["category"],
+    type: NotificationType = "information"
   ): Promise<DbNotification> {
-    const formattedTitle = type === 'achievement' ? `🏆 ${title}` : type === 'success' ? `✅ ${title}` : type === 'warning' ? `⚠️ ${title}` : title;
-    
+    const formattedTitle =
+      type === "achievement"
+        ? `🏆 ${title}`
+        : type === "success"
+          ? `✅ ${title}`
+          : type === "warning"
+            ? `⚠️ ${title}`
+            : title;
+
     const notification: DbNotification = {
       id: "notify-" + Date.now() + Math.random().toString(36).substr(2, 4),
       title: formattedTitle,
       body,
       category,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       read: false
     };
 
@@ -30,7 +37,7 @@ export class NotificationService {
     // 2. Refresh Zustand Store (with a safe fallback if store is not initialized)
     try {
       const storeState = useStore.getState();
-      if (storeState && typeof storeState.initStore === 'function') {
+      if (storeState && typeof storeState.initStore === "function") {
         const notifications = [notification, ...(storeState.notifications || [])];
         useStore.setState({ notifications });
       }
@@ -48,7 +55,7 @@ export class NotificationService {
     await db.notifications.delete(id);
     try {
       const current = useStore.getState().notifications || [];
-      useStore.setState({ notifications: current.filter(n => n.id !== id) });
+      useStore.setState({ notifications: current.filter((n) => n.id !== id) });
     } catch {}
   }
 
@@ -58,9 +65,9 @@ export class NotificationService {
   public static async markRead(id: string): Promise<void> {
     try {
       const current = useStore.getState().notifications || [];
-      const updated = current.map(n => n.id === id ? { ...n, read: true } : n);
+      const updated = current.map((n) => (n.id === id ? { ...n, read: true } : n));
       useStore.setState({ notifications: updated });
-      const matched = updated.find(n => n.id === id);
+      const matched = updated.find((n) => n.id === id);
       if (matched) {
         await db.notifications.put(matched);
       }
@@ -80,9 +87,9 @@ export class NotificationService {
   public static async markUnread(id: string): Promise<void> {
     try {
       const current = useStore.getState().notifications || [];
-      const updated = current.map(n => n.id === id ? { ...n, read: false } : n);
+      const updated = current.map((n) => (n.id === id ? { ...n, read: false } : n));
       useStore.setState({ notifications: updated });
-      const matched = updated.find(n => n.id === id);
+      const matched = updated.find((n) => n.id === id);
       if (matched) {
         await db.notifications.put(matched);
       }
@@ -108,7 +115,11 @@ export class NotificationService {
   /**
    * Automatic triggers based on specific gameplay events
    */
-  public static async notifyChallengeCompleted(title: string, xp: number, points: number): Promise<void> {
+  public static async notifyChallengeCompleted(
+    title: string,
+    xp: number,
+    points: number
+  ): Promise<void> {
     await this.createNotification(
       "Eco Challenge Completed!",
       `Great effort! You've successfully completed the challenge "${title}". Gained +${xp} XP and +${points} EcoPoints!`,
@@ -181,7 +192,10 @@ export class NotificationService {
     );
   }
 
-  public static async notifyLearningLessonCompleted(title: string, xpGained: number): Promise<void> {
+  public static async notifyLearningLessonCompleted(
+    title: string,
+    xpGained: number
+  ): Promise<void> {
     await this.createNotification(
       "Lesson Completed!",
       `Environmental study unit "${title}" completed. Gained +${xpGained} XP toward your climate scholar badges!`,
@@ -217,7 +231,10 @@ export class NotificationService {
     );
   }
 
-  public static async notifyWalletRewardReceived(title: string, pointsSpent: number): Promise<void> {
+  public static async notifyWalletRewardReceived(
+    title: string,
+    pointsSpent: number
+  ): Promise<void> {
     await this.createNotification(
       "Reward Voucher Transacted",
       `Successfully spent ${pointsSpent} EcoPoints for voucher: "${title}". Serial numbers has been sent to scan history catalog.`,

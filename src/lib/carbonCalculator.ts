@@ -1,10 +1,10 @@
-import { CarbonCalculationService } from '../services/CarbonCalculationService';
+import { CarbonCalculationService } from "../services/CarbonCalculationService";
 
 // Re-expose emission factors directly from the centralized service to keep states in sync
 export const EMISSION_FACTORS = {
   transport: {
     car: 0.18,
-    hybrid: 0.10,
+    hybrid: 0.1,
     ev: 0.02,
     public: 0.05,
     cycle: 0.0,
@@ -36,41 +36,43 @@ export const EMISSION_FACTORS = {
  * Calculates transit carbon impact using central calculation service
  */
 export function calculateTransportCarbon(
-  mode: 'car' | 'hybrid' | 'ev' | 'public' | 'cycle' | 'walking',
+  mode: "car" | "hybrid" | "ev" | "public" | "cycle" | "walking",
   distanceKm: number
 ): number {
-  if (mode === 'walking') {
-    return CarbonCalculationService.calculateTransport('walk', distanceKm);
+  if (mode === "walking") {
+    return CarbonCalculationService.calculateTransport("walk", distanceKm);
   }
-  if (mode === 'cycle') {
-    return CarbonCalculationService.calculateTransport('bicycle', distanceKm);
+  if (mode === "cycle") {
+    return CarbonCalculationService.calculateTransport("bicycle", distanceKm);
   }
-  if (mode === 'public') {
-    return CarbonCalculationService.calculateTransport('bus', distanceKm);
+  if (mode === "public") {
+    return CarbonCalculationService.calculateTransport("bus", distanceKm);
   }
-  if (mode === 'hybrid') {
-    return Number((CarbonCalculationService.calculateTransport('car', distanceKm) * 0.55).toFixed(2));
+  if (mode === "hybrid") {
+    return Number(
+      (CarbonCalculationService.calculateTransport("car", distanceKm) * 0.55).toFixed(2)
+    );
   }
-  if (mode === 'ev') {
-    return CarbonCalculationService.calculateTransport('ev', distanceKm);
+  if (mode === "ev") {
+    return CarbonCalculationService.calculateTransport("ev", distanceKm);
   }
-  return CarbonCalculationService.calculateTransport('car', distanceKm);
+  return CarbonCalculationService.calculateTransport("car", distanceKm);
 }
 
 /**
  * Calculates food emissions using central calculation service
  */
-export function calculateFoodCarbon(diet: 'meat' | 'balanced' | 'veg' | 'vegan'): number {
-  if (diet === 'meat') {
-    return CarbonCalculationService.calculateFood('redMeat', 1);
+export function calculateFoodCarbon(diet: "meat" | "balanced" | "veg" | "vegan"): number {
+  if (diet === "meat") {
+    return CarbonCalculationService.calculateFood("redMeat", 1);
   }
-  if (diet === 'veg') {
-    return CarbonCalculationService.calculateFood('vegetarian', 1);
+  if (diet === "veg") {
+    return CarbonCalculationService.calculateFood("vegetarian", 1);
   }
-  if (diet === 'vegan') {
-    return CarbonCalculationService.calculateFood('vegan', 1);
+  if (diet === "vegan") {
+    return CarbonCalculationService.calculateFood("vegan", 1);
   }
-  return CarbonCalculationService.calculateFood('dairy', 1);
+  return CarbonCalculationService.calculateFood("dairy", 1);
 }
 
 /**
@@ -79,10 +81,10 @@ export function calculateFoodCarbon(diet: 'meat' | 'balanced' | 'veg' | 'vegan')
 export function calculateEnergyCarbon(kwh: number, cleanSourcePercent: number = 0): number {
   const dirtyKwh = (kwh * (100 - cleanSourcePercent)) / 100;
   const cleanKwh = (kwh * cleanSourcePercent) / 100;
-  
-  const dirtyCarbon = CarbonCalculationService.calculateEnergy('electricity', dirtyKwh);
-  const cleanCarbon = CarbonCalculationService.calculateEnergy('solar', cleanKwh);
-  
+
+  const dirtyCarbon = CarbonCalculationService.calculateEnergy("electricity", dirtyKwh);
+  const cleanCarbon = CarbonCalculationService.calculateEnergy("solar", cleanKwh);
+
   return Number((dirtyCarbon + cleanCarbon).toFixed(2));
 }
 
@@ -90,18 +92,18 @@ export function calculateEnergyCarbon(kwh: number, cleanSourcePercent: number = 
  * Calculates carbon savings comparing user current practice vs baseline using central service
  */
 export function calculateCarbonActionSavings(
-  category: 'transport' | 'food' | 'energy' | 'waste' | 'shopping',
+  category: "transport" | "food" | "energy" | "waste" | "shopping",
   actionValue: number,
   modeArg?: string
 ): { carbonSaved: number; ecoPoints: number } {
   // Convert legacy mode arguments to fit Service signature
   let targetMode = modeArg;
-  if (category === 'transport') {
-    if (modeArg === 'cycle') targetMode = 'bicycle';
-    if (modeArg === 'walking') targetMode = 'walk';
-    if (modeArg === 'public') targetMode = 'bus';
-  } else if (category === 'food') {
-    if (modeArg === 'meat') targetMode = 'redMeat';
+  if (category === "transport") {
+    if (modeArg === "cycle") targetMode = "bicycle";
+    if (modeArg === "walking") targetMode = "walk";
+    if (modeArg === "public") targetMode = "bus";
+  } else if (category === "food") {
+    if (modeArg === "meat") targetMode = "redMeat";
   }
 
   return CarbonCalculationService.getCalculationSavings(category, actionValue, targetMode);

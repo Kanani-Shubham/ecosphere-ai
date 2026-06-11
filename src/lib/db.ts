@@ -1,14 +1,20 @@
-import Dexie, { Table } from 'dexie';
-import { 
-  UserProfile, Activity, Goal, Challenge, 
-  CommunityPost, Badge, RewardTransaction, ChatMessage 
-} from '../types';
+import Dexie, { Table } from "dexie";
+import {
+  UserProfile,
+  Activity,
+  Goal,
+  Challenge,
+  CommunityPost,
+  Badge,
+  RewardTransaction,
+  ChatMessage
+} from "../types";
 
 // Extend models for internal DB attributes
 export interface DbScanLog {
   id: string;
   name: string;
-  type: 'receipt' | 'bill' | 'camera';
+  type: "receipt" | "bill" | "camera";
   timestamp: string;
   co2Value: number;
   category: string;
@@ -26,7 +32,7 @@ export interface DbNotification {
   id: string;
   title: string;
   body: string;
-  category: 'achievement' | 'challenge' | 'goal' | 'learning' | 'ai' | 'system';
+  category: "achievement" | "challenge" | "goal" | "learning" | "ai" | "system";
   timestamp: string;
   read: boolean;
 }
@@ -45,9 +51,9 @@ export interface DbLearningArticle {
 }
 
 export interface DbSettings {
-  id: 'global';
-  theme: 'light' | 'dark' | 'system';
-  language: 'en' | 'hi' | 'gu' | 'es' | 'fr' | 'de' | 'ar' | 'zh';
+  id: "global";
+  theme: "light" | "dark" | "system";
+  language: "en" | "hi" | "gu" | "es" | "fr" | "de" | "ar" | "zh";
   dailyReminder: boolean;
   challengeReminder: boolean;
   goalReminder: boolean;
@@ -70,20 +76,20 @@ export class EcoSphereDatabase extends Dexie {
   settings!: Table<DbSettings, string>;
 
   constructor() {
-    super('EcoSphereDatabase');
+    super("EcoSphereDatabase");
     this.version(1).stores({
-      profile: 'id',
-      activities: 'id, category, date',
-      goals: 'id, category, completed',
-      challenges: 'id, category, completed, type',
-      community: 'id, category',
-      badges: 'id, unlocked',
-      transactions: 'id, type, date',
-      chats: 'id, timestamp',
-      scans: 'id, type, timestamp',
-      notifications: 'id, category, read',
-      learningArticles: 'id, category, bookmarked, completed',
-      settings: 'id'
+      profile: "id",
+      activities: "id, category, date",
+      goals: "id, category, completed",
+      challenges: "id, category, completed, type",
+      community: "id, category",
+      badges: "id, unlocked",
+      transactions: "id, type, date",
+      chats: "id, timestamp",
+      scans: "id, type, timestamp",
+      notifications: "id, category, read",
+      learningArticles: "id, category, bookmarked, completed",
+      settings: "id"
     });
   }
 }

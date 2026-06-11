@@ -1,11 +1,31 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { 
-  BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, 
-  Tooltip, Legend, ResponsiveContainer 
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
 } from "recharts";
-import { 
-  TrendingDown, TrendingUp, Calendar, FileDown, Trees, DollarSign, Cloud, Leaf, Check, RefreshCw
+import {
+  TrendingDown,
+  TrendingUp,
+  Calendar,
+  FileDown,
+  Trees,
+  DollarSign,
+  Cloud,
+  Leaf,
+  Check,
+  RefreshCw
 } from "lucide-react";
 import { Activity, SavedReport, CategoryType, UserProfile } from "../types";
 import { useStore } from "../lib/store";
@@ -31,9 +51,9 @@ export default function AnalyticsView({ activities }: AnalyticsViewProps) {
   }) as UserProfile;
 
   // Option filter views inside stats: 'overview' | 'breakdown' | 'report'
-  const [activeTab, setActiveTab] = useState<'overview' | 'breakdown' | 'report'>('overview');
+  const [activeTab, setActiveTab] = useState<"overview" | "breakdown" | "report">("overview");
   // Date grain filter: 'weekly' | 'monthly' | 'yearly'
-  const [timeGrain, setTimeGrain] = useState<'weekly' | 'monthly' | 'yearly'>('monthly');
+  const [timeGrain, setTimeGrain] = useState<"weekly" | "monthly" | "yearly">("monthly");
   // Report download click trigger
   const [pdfIsDownloading, setPdfIsDownloading] = useState<boolean>(false);
 
@@ -43,41 +63,61 @@ export default function AnalyticsView({ activities }: AnalyticsViewProps) {
   // Realistically mapping onboarding habits to daily emissions (kg CO2e per day)
   const getDailyTransportEmissions = () => {
     switch (profile.transportHabit) {
-      case "car": return 6.5;
-      case "ev": return 2.0;
-      case "public": return 1.8;
-      case "bike": return 0.1;
-      case "walking": return 0.05;
-      default: return 4.5;
+      case "car":
+        return 6.5;
+      case "ev":
+        return 2.0;
+      case "public":
+        return 1.8;
+      case "bike":
+        return 0.1;
+      case "walking":
+        return 0.05;
+      default:
+        return 4.5;
     }
   };
 
   const getDailyFoodEmissions = () => {
     switch (profile.foodHabit) {
-      case "meat-heavy": return 6.2;
-      case "balanced": return 3.6;
-      case "vegetarian": return 2.1;
-      case "vegan": return 1.5;
-      default: return 3.6;
+      case "meat-heavy":
+        return 6.2;
+      case "balanced":
+        return 3.6;
+      case "vegetarian":
+        return 2.1;
+      case "vegan":
+        return 1.5;
+      default:
+        return 3.6;
     }
   };
 
   const getDailyEnergyEmissions = () => {
     switch (profile.electricityHabit) {
-      case "high-ac": return 8.0;
-      case "normal": return 4.5;
-      case "saving": return 2.2;
-      case "solar": return 0.1;
-      default: return 4.5;
+      case "high-ac":
+        return 8.0;
+      case "normal":
+        return 4.5;
+      case "saving":
+        return 2.2;
+      case "solar":
+        return 0.1;
+      default:
+        return 4.5;
     }
   };
 
   const getDailyShoppingEmissions = () => {
     switch (profile.shoppingHabit) {
-      case "heavy": return 5.5;
-      case "average": return 2.5;
-      case "infrequent": return 1.0;
-      default: return 2.5;
+      case "heavy":
+        return 5.5;
+      case "average":
+        return 2.5;
+      case "infrequent":
+        return 1.0;
+      default:
+        return 2.5;
     }
   };
 
@@ -100,7 +140,7 @@ export default function AnalyticsView({ activities }: AnalyticsViewProps) {
   };
 
   // Adjust baseline calculations based on real actions (savings/additions)
-  activities.forEach(act => {
+  activities.forEach((act) => {
     // Check if within matching period (simulate filter window)
     const val = act.co2Value;
     if (categoryTotals[act.category] !== undefined) {
@@ -165,7 +205,9 @@ export default function AnalyticsView({ activities }: AnalyticsViewProps) {
     setPdfIsDownloading(true);
     setTimeout(() => {
       try {
-        const loggedSavingsReport = activities.filter(a => a.co2Value < 0).reduce((sum, a) => sum + Math.abs(a.co2Value), 0);
+        const loggedSavingsReport = activities
+          .filter((a) => a.co2Value < 0)
+          .reduce((sum, a) => sum + Math.abs(a.co2Value), 0);
         const treesSavedReport = Math.max(0, Number((loggedSavingsReport / 22).toFixed(1)));
         const moneySavedReport = Math.max(0, Number((loggedSavingsReport * 0.15).toFixed(1)));
         const currentStreak = useStore.getState().user?.currentStreak ?? profile.currentStreak ?? 0;
@@ -220,13 +262,13 @@ Protect our climate, one activity at a time.
         // Create browser-compatible Blob-to-URL conversion and trigger link click anchor
         const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
         const url = URL.createObjectURL(blob);
-        
+
         const link = document.createElement("a");
         link.href = url;
-        link.download = `EcoSphere_Impact_Report_${profile.name.replace(/\s+/g, '_')}.pdf`;
+        link.download = `EcoSphere_Impact_Report_${profile.name.replace(/\s+/g, "_")}.pdf`;
         document.body.appendChild(link);
         link.click();
-        
+
         // Clean up allocation resources to prevent leaks
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
@@ -251,7 +293,9 @@ Protect our climate, one activity at a time.
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
             className={`flex-1 py-3 text-xs font-bold transition-all rounded-xl text-center capitalize ${
-              activeTab === tab.id ? 'bg-brand-600 text-white shadow-md shadow-emerald-600/15' : 'text-slate-500 hover:text-slate-800'
+              activeTab === tab.id
+                ? "bg-brand-600 text-white shadow-md shadow-emerald-600/15"
+                : "text-slate-500 hover:text-slate-800"
             }`}
           >
             {tab.label}
@@ -271,7 +315,9 @@ Protect our climate, one activity at a time.
               key={grain.id}
               onClick={() => setTimeGrain(grain.id as any)}
               className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all ${
-                timeGrain === grain.id ? 'bg-slate-200 text-slate-800' : 'bg-slate-100 text-slate-400 hover:text-slate-600'
+                timeGrain === grain.id
+                  ? "bg-slate-200 text-slate-800"
+                  : "bg-slate-100 text-slate-400 hover:text-slate-600"
               }`}
             >
               {grain.label}
@@ -293,8 +339,13 @@ Protect our climate, one activity at a time.
             {/* Total emissions summary card */}
             <div className="bg-white border rounded-3xl p-5 shadow-sm flex items-center justify-between">
               <div>
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Aggregate Carbon Score</p>
-                <p className="text-3xl font-extrabold text-slate-800 mt-1">{totalEmissions.toFixed(0)} kg <span className="text-sm font-semibold text-slate-400">CO₂e</span></p>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                  Aggregate Carbon Score
+                </p>
+                <p className="text-3xl font-extrabold text-slate-800 mt-1">
+                  {totalEmissions.toFixed(0)} kg{" "}
+                  <span className="text-sm font-semibold text-slate-400">CO₂e</span>
+                </p>
                 <div className="flex items-center gap-1.5 mt-2 text-emerald-600">
                   <TrendingDown className="w-4.5 h-4.5" />
                   <span className="text-xs font-bold">18% lower than regional base</span>
@@ -307,19 +358,42 @@ Protect our climate, one activity at a time.
 
             {/* Emissions comparison bar chart */}
             <div className="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm space-y-3">
-              <h4 className="font-bold text-xs text-slate-400 uppercase tracking-widest">Active Emissions Comparison</h4>
-              <p className="text-[10px] text-slate-500 font-normal leading-tight">Your actual logged load compared to localized city targets over time:</p>
-              
+              <h4 className="font-bold text-xs text-slate-400 uppercase tracking-widest">
+                Active Emissions Comparison
+              </h4>
+              <p className="text-[10px] text-slate-500 font-normal leading-tight">
+                Your actual logged load compared to localized city targets over time:
+              </p>
+
               <div className="w-full h-56 mt-4 font-mono text-[10px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={barData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                     <XAxis dataKey="name" stroke="#94a3b8" tickLine={false} />
                     <YAxis stroke="#94a3b8" tickLine={false} />
-                    <Tooltip contentStyle={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '12px', fontSize: '10px' }} />
-                    <Legend iconType="circle" wrapperStyle={{ fontSize: '10px' }} />
-                    <Bar name="Actual Emissions" dataKey="emissions" fill="#22c55e" radius={[4, 4, 0, 0]} />
-                    <Line name="City Baseline Limit" type="monotone" dataKey="target" stroke="#ef4444" strokeWidth={1.5} activeDot={false} />
+                    <Tooltip
+                      contentStyle={{
+                        background: "#f8fafc",
+                        border: "1px solid #cbd5e1",
+                        borderRadius: "12px",
+                        fontSize: "10px"
+                      }}
+                    />
+                    <Legend iconType="circle" wrapperStyle={{ fontSize: "10px" }} />
+                    <Bar
+                      name="Actual Emissions"
+                      dataKey="emissions"
+                      fill="#22c55e"
+                      radius={[4, 4, 0, 0]}
+                    />
+                    <Line
+                      name="City Baseline Limit"
+                      type="monotone"
+                      dataKey="target"
+                      stroke="#ef4444"
+                      strokeWidth={1.5}
+                      activeDot={false}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -327,17 +401,26 @@ Protect our climate, one activity at a time.
 
             {/* Historical trend Cumulative Emissions Line Chart */}
             <div className="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm space-y-3">
-              <h4 className="font-bold text-xs text-slate-400 uppercase tracking-widest">6-Month Trend Overview</h4>
-              
+              <h4 className="font-bold text-xs text-slate-400 uppercase tracking-widest">
+                6-Month Trend Overview
+              </h4>
+
               <div className="w-full h-56 mt-4 font-mono text-[10px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={trendData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                     <XAxis dataKey="month" stroke="#94a3b8" tickLine={false} />
                     <YAxis stroke="#94a3b8" tickLine={false} />
-                    <Tooltip contentStyle={{ borderRadius: '12px', fontSize: '10px' }} />
-                    <Legend iconType="circle" wrapperStyle={{ fontSize: '10px' }} />
-                    <Line name="CO2 Output Trend" type="monotone" dataKey="co2" stroke="#4ade80" strokeWidth={3} activeDot={{ r: 6 }} />
+                    <Tooltip contentStyle={{ borderRadius: "12px", fontSize: "10px" }} />
+                    <Legend iconType="circle" wrapperStyle={{ fontSize: "10px" }} />
+                    <Line
+                      name="CO2 Output Trend"
+                      type="monotone"
+                      dataKey="co2"
+                      stroke="#4ade80"
+                      strokeWidth={3}
+                      activeDot={{ r: 6 }}
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -356,8 +439,10 @@ Protect our climate, one activity at a time.
           >
             {/* Pie Chart visual container */}
             <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm flex flex-col items-center">
-              <h4 className="font-bold text-xs text-slate-400 uppercase tracking-widest text-center self-start mb-4">Carbon Source Allocation</h4>
-              
+              <h4 className="font-bold text-xs text-slate-400 uppercase tracking-widest text-center self-start mb-4">
+                Carbon Source Allocation
+              </h4>
+
               <div className="w-full h-48 flex justify-center items-center font-mono text-[10px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -374,28 +459,41 @@ Protect our climate, one activity at a time.
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip contentStyle={{ fontSize: '10px' }} />
+                    <Tooltip contentStyle={{ fontSize: "10px" }} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
             </div>
 
             {/* List entries layout detailing numbers (S4 legend values) */}
-            <div className="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm space-y-3" id="legends-list">
-              <h4 className="font-bold text-xs text-slate-400 uppercase tracking-widest">Allocation Breakdown Values</h4>
-              
+            <div
+              className="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm space-y-3"
+              id="legends-list"
+            >
+              <h4 className="font-bold text-xs text-slate-400 uppercase tracking-widest">
+                Allocation Breakdown Values
+              </h4>
+
               <div className="space-y-3">
                 {pieData.map((item, idx) => {
                   const percent = Math.round((item.value / totalEmissions) * 100);
                   return (
-                    <div key={idx} className="flex items-center justify-between p-3 bg-slate-50/50 rounded-2xl border">
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between p-3 bg-slate-50/50 rounded-2xl border"
+                    >
                       <div className="flex items-center gap-3">
-                        <div className="w-3.5 h-3.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+                        <div
+                          className="w-3.5 h-3.5 rounded-full shrink-0"
+                          style={{ backgroundColor: item.color }}
+                        />
                         <span className="text-xs font-bold text-slate-800">{item.name}</span>
                       </div>
                       <div className="text-right flex items-center gap-4">
                         <span className="text-xs font-semibold text-slate-400">{percent}%</span>
-                        <span className="text-xs font-bold text-slate-800 font-mono">({item.value} kg)</span>
+                        <span className="text-xs font-bold text-slate-800 font-mono">
+                          ({item.value} kg)
+                        </span>
                       </div>
                     </div>
                   );
@@ -416,7 +514,9 @@ Protect our climate, one activity at a time.
           >
             {/* Impact Report Header Selection */}
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-slate-800 font-display">Your Impact Summary</h3>
+              <h3 className="text-base font-bold text-slate-800 font-display">
+                Your Impact Summary
+              </h3>
               <div className="flex items-center gap-1 text-xs text-slate-400 font-bold bg-white px-2.5 py-1.5 rounded-xl border border-slate-100 shadow-sm leading-none select-none">
                 <Calendar className="w-3.5 h-3.5" /> This Month
               </div>
@@ -424,7 +524,9 @@ Protect our climate, one activity at a time.
 
             {/* 3 Grid highlight cards (S11 Trees, CO2 reduced, Money saved) */}
             {(() => {
-              const loggedSavingsReport = activities.filter(a => a.co2Value < 0).reduce((sum, a) => sum + Math.abs(a.co2Value), 0);
+              const loggedSavingsReport = activities
+                .filter((a) => a.co2Value < 0)
+                .reduce((sum, a) => sum + Math.abs(a.co2Value), 0);
               const treesSavedReport = Math.max(0, Number((loggedSavingsReport / 22).toFixed(1)));
               const moneySavedReport = Math.max(0, Number((loggedSavingsReport * 0.15).toFixed(1)));
 
@@ -433,15 +535,21 @@ Protect our climate, one activity at a time.
                   <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-3 flex flex-col justify-between min-h-[95px]">
                     <Trees className="w-5 h-5 text-emerald-600 shrink-0" />
                     <div className="mt-3">
-                      <p className="text-sm font-bold text-emerald-800 uppercase tracking-wide">{treesSavedReport}</p>
-                      <p className="text-[9px] text-emerald-600/75 mt-0.5 leading-none">Trees Saved</p>
+                      <p className="text-sm font-bold text-emerald-800 uppercase tracking-wide">
+                        {treesSavedReport}
+                      </p>
+                      <p className="text-[9px] text-emerald-600/75 mt-0.5 leading-none">
+                        Trees Saved
+                      </p>
                     </div>
                   </div>
 
                   <div className="bg-emerald-600 text-white rounded-2xl p-3 flex flex-col justify-between min-h-[95px]">
                     <Leaf className="w-5 h-5 text-emerald-100 shrink-0" />
                     <div className="mt-3">
-                      <p className="text-sm font-black uppercase tracking-wide">{loggedSavingsReport.toFixed(1)} kg</p>
+                      <p className="text-sm font-black uppercase tracking-wide">
+                        {loggedSavingsReport.toFixed(1)} kg
+                      </p>
                       <p className="text-[9px] text-emerald-100 mt-0.5 leading-none">CO₂e Saved</p>
                     </div>
                   </div>
@@ -449,8 +557,12 @@ Protect our climate, one activity at a time.
                   <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-3 flex flex-col justify-between min-h-[95px]">
                     <DollarSign className="w-5 h-5 text-blue-600 shrink-0" />
                     <div className="mt-3">
-                      <p className="text-sm font-bold text-blue-800 uppercase tracking-wide">${moneySavedReport}</p>
-                      <p className="text-[9px] text-blue-600/75 mt-0.5 leading-none font-medium">Money Saved</p>
+                      <p className="text-sm font-bold text-blue-800 uppercase tracking-wide">
+                        ${moneySavedReport}
+                      </p>
+                      <p className="text-[9px] text-blue-600/75 mt-0.5 leading-none font-medium">
+                        Money Saved
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -459,14 +571,26 @@ Protect our climate, one activity at a time.
 
             {/* Category Impact Horizontal Bars (S11 styling) */}
             <div className="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm space-y-4">
-              <h4 className="font-extrabold text-xs text-slate-400 uppercase tracking-wider">Category Impact Contribution</h4>
-              
+              <h4 className="font-extrabold text-xs text-slate-400 uppercase tracking-wider">
+                Category Impact Contribution
+              </h4>
+
               <div className="space-y-4">
                 {[
-                  { name: "Transport", value: categoryTotals.transport, max: 200, color: "bg-blue-500" },
+                  {
+                    name: "Transport",
+                    value: categoryTotals.transport,
+                    max: 200,
+                    color: "bg-blue-500"
+                  },
                   { name: "Food", value: categoryTotals.food, max: 120, color: "bg-rose-500" },
                   { name: "Energy", value: categoryTotals.energy, max: 100, color: "bg-amber-500" },
-                  { name: "Shopping", value: categoryTotals.shopping, max: 80, color: "bg-purple-500" },
+                  {
+                    name: "Shopping",
+                    value: categoryTotals.shopping,
+                    max: 80,
+                    color: "bg-purple-500"
+                  },
                   { name: "Waste", value: categoryTotals.waste, max: 50, color: "bg-emerald-500" }
                 ].map((item, idx) => {
                   const barPercent = Math.min(100, Math.round((item.value / item.max) * 100));
@@ -477,7 +601,10 @@ Protect our climate, one activity at a time.
                         <span className="font-mono">{item.value.toFixed(0)} kg</span>
                       </div>
                       <div className="w-full h-3 bg-slate-50 border border-slate-100 rounded-full overflow-hidden">
-                        <div className={`h-full ${item.color} rounded-full`} style={{ width: `${barPercent}%` }} />
+                        <div
+                          className={`h-full ${item.color} rounded-full`}
+                          style={{ width: `${barPercent}%` }}
+                        />
                       </div>
                     </div>
                   );
@@ -510,7 +637,6 @@ Protect our climate, one activity at a time.
           </motion.div>
         )}
       </AnimatePresence>
-
     </div>
   );
 }

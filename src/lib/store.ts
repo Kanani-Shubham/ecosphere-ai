@@ -1,10 +1,20 @@
-import { create } from 'zustand';
-import { db, DbScanLog, DbNotification, DbLearningArticle, DbSettings } from './db';
-import { 
-  UserProfile, Activity, Goal, Challenge, 
-  CommunityPost, Badge, RewardTransaction, ChatMessage, CategoryType
-} from '../types';
-import { calculateCarbonActionSavings } from './carbonCalculator';
+import { create } from "zustand";
+import { db, DbScanLog, DbNotification, DbLearningArticle, DbSettings } from "./db";
+import {
+  UserProfile,
+  Activity,
+  Goal,
+  Challenge,
+  CommunityPost,
+  Badge,
+  RewardTransaction,
+  ChatMessage,
+  CategoryType
+} from "../types";
+import { calculateCarbonActionSavings } from "./carbonCalculator";
+import { getProgression } from "../utils/xpCalculator";
+import { calculateStreakUpdate } from "../utils/streakCalculator";
+export { getProgression, calculateStreakUpdate };
 
 interface AppState {
   profile: UserProfile | null;
@@ -22,7 +32,14 @@ interface AppState {
   learningArticles: DbLearningArticle[];
   settings: DbSettings | null;
   isLoadingStore: boolean;
-  dbInitStatus: 'uninitialized' | 'loading' | 'restoring' | 'ready' | 'corrupted' | 'recovered' | 'error';
+  dbInitStatus:
+    | "uninitialized"
+    | "loading"
+    | "restoring"
+    | "ready"
+    | "corrupted"
+    | "recovered"
+    | "error";
   dbStatusMessage: string;
 
   // Global Operations
@@ -31,11 +48,19 @@ interface AppState {
   resetAll: () => Promise<void>;
 
   // Activity Operations
-  addActivity: (activity: Omit<Activity, 'id' | 'date'> & { id?: string, date?: string }) => Promise<void>;
+  addActivity: (
+    activity: Omit<Activity, "id" | "date"> & { id?: string; date?: string }
+  ) => Promise<void>;
   deleteActivity: (id: string) => Promise<void>;
 
   // Goal Operations
-  addGoal: (goal: Omit<Goal, 'id' | 'completed' | 'currentValue'> & { id?: string, currentValue?: number, completed?: boolean }) => Promise<void>;
+  addGoal: (
+    goal: Omit<Goal, "id" | "completed" | "currentValue"> & {
+      id?: string;
+      currentValue?: number;
+      completed?: boolean;
+    }
+  ) => Promise<void>;
   toggleGoalComplete: (id: string) => Promise<void>;
   incrementGoalProgress: (id: string, amount: number) => Promise<void>;
   clearGoals: () => Promise<void>;
@@ -44,21 +69,34 @@ interface AppState {
   completeChallenge: (id: string) => Promise<void>;
 
   // Community Operations
-  addCommunityPost: (content: string, category: string, image?: string, postType?: 'text' | 'image' | 'achievement' | 'challenge' | 'milestone') => Promise<void>;
+  addCommunityPost: (
+    content: string,
+    category: string,
+    image?: string,
+    postType?: "text" | "image" | "achievement" | "challenge" | "milestone"
+  ) => Promise<void>;
   likeCommunityPost: (postId: string) => Promise<void>;
   commentCommunityPost: (postId: string, commentText: string) => Promise<void>;
-  replyCommentCommunityPost: (postId: string, commentId: string, replyText: string) => Promise<void>;
+  replyCommentCommunityPost: (
+    postId: string,
+    commentId: string,
+    replyText: string
+  ) => Promise<void>;
   deleteCommunityPost: (postId: string) => Promise<void>;
   editCommunityPost: (postId: string, newContent: string) => Promise<void>;
   reportCommunityPost: (postId: string) => Promise<void>;
   saveCommunityPost: (postId: string) => Promise<void>;
 
   // Scan Operations
-  addScan: (scan: Omit<DbScanLog, 'id' | 'timestamp'>) => Promise<void>;
+  addScan: (scan: Omit<DbScanLog, "id" | "timestamp">) => Promise<void>;
   deleteScan: (id: string) => Promise<void>;
 
   // Notification Operations
-  addNotification: (title: string, body: string, category: DbNotification['category']) => Promise<void>;
+  addNotification: (
+    title: string,
+    body: string,
+    category: DbNotification["category"]
+  ) => Promise<void>;
   markNotificationRead: (id: string) => Promise<void>;
   clearAllNotifications: () => Promise<void>;
 
@@ -77,35 +115,189 @@ interface AppState {
   // Achievement audit trigger
   auditAchievements: () => void;
   // Unified Rewards & Challenge Operations
-  addRewardTransaction: (title: string, points: number, xp: number, source: string, dateArg?: string) => Promise<void>;
+  addRewardTransaction: (
+    title: string,
+    points: number,
+    xp: number,
+    source: string,
+    dateArg?: string
+  ) => Promise<void>;
   claimDailyMission: () => Promise<void>;
 }
 
 // Default initial state data for cold restarts
 const DEFAULT_GOALS: Goal[] = [
-  { id: "1", title: "Reduce home power consumption by 20%", category: "energy", targetValue: 120, currentValue: 45, deadline: "2026-07-31", completed: false },
-  { id: "2", title: "Cycle or walk to local markets", category: "transport", targetValue: 50, currentValue: 12, deadline: "2026-06-30", completed: false },
-  { id: "3", title: "Eat organic vegan breakfasts", category: "food", targetValue: 30, currentValue: 10, deadline: "2026-12-31", completed: false },
-  { id: "4", title: "Compost organic household solid scrap", category: "waste", targetValue: 10, currentValue: 3, deadline: "2026-06-25", completed: false }
+  {
+    id: "1",
+    title: "Reduce home power consumption by 20%",
+    category: "energy",
+    targetValue: 120,
+    currentValue: 45,
+    deadline: "2026-07-31",
+    completed: false
+  },
+  {
+    id: "2",
+    title: "Cycle or walk to local markets",
+    category: "transport",
+    targetValue: 50,
+    currentValue: 12,
+    deadline: "2026-06-30",
+    completed: false
+  },
+  {
+    id: "3",
+    title: "Eat organic vegan breakfasts",
+    category: "food",
+    targetValue: 30,
+    currentValue: 10,
+    deadline: "2026-12-31",
+    completed: false
+  },
+  {
+    id: "4",
+    title: "Compost organic household solid scrap",
+    category: "waste",
+    targetValue: 10,
+    currentValue: 3,
+    deadline: "2026-06-25",
+    completed: false
+  }
 ];
 
 const DEFAULT_CHALLENGES: Challenge[] = [
-  { id: "c1", title: "Walk 3 km today", category: "transport", description: "Save vehicle fuel and emissions by walk instead of driving short distances.", xpReward: 40, pointsReward: 150, difficulty: "Easy", completed: false, type: "daily" },
-  { id: "c2", title: "No plastic day", category: "waste", description: "Refuse single-use cups, grocery carrier bags, and plastic cutlery.", xpReward: 30, pointsReward: 100, difficulty: "Easy", completed: false, type: "daily" },
-  { id: "c3", title: "Use public transport", category: "transport", description: "Adopt train, electric commuter rail, or shared transit today.", xpReward: 60, pointsReward: 200, difficulty: "Medium", completed: false, type: "daily" },
-  { id: "c4", title: "Eat plant-based meal", category: "food", description: "Prepare a breakfast, lunch or dinner consisting solely of vegetables & grains.", xpReward: 30, pointsReward: 100, difficulty: "Easy", completed: false, type: "daily" },
-  { id: "c5", title: "Commute by bicycle", category: "transport", description: "Bicycle to and from school, college or work, saving 5 kg CO2.", xpReward: 120, pointsReward: 350, difficulty: "Medium", completed: false, type: "weekly" },
-  { id: "c6", title: "Set thermostat to 25°C", category: "energy", description: "Ensure household active cooling is optimized for less grid carbon draw.", xpReward: 80, pointsReward: 250, difficulty: "Easy", completed: false, type: "weekly" },
-  { id: "c7", title: "Zero Waste Week", category: "waste", description: "Produce zero disposable waste for 7 consecutive days.", xpReward: 300, pointsReward: 750, difficulty: "Hard", completed: false, type: "special" },
-  { id: "c8", title: "Eco Home Retrofit", category: "energy", description: "Install LED lighting, energy timers, or switch electricity sources to certified solar.", xpReward: 450, pointsReward: 1000, difficulty: "Hard", completed: false, type: "special" }
+  {
+    id: "c1",
+    title: "Walk 3 km today",
+    category: "transport",
+    description: "Save vehicle fuel and emissions by walk instead of driving short distances.",
+    xpReward: 40,
+    pointsReward: 150,
+    difficulty: "Easy",
+    completed: false,
+    type: "daily"
+  },
+  {
+    id: "c2",
+    title: "No plastic day",
+    category: "waste",
+    description: "Refuse single-use cups, grocery carrier bags, and plastic cutlery.",
+    xpReward: 30,
+    pointsReward: 100,
+    difficulty: "Easy",
+    completed: false,
+    type: "daily"
+  },
+  {
+    id: "c3",
+    title: "Use public transport",
+    category: "transport",
+    description: "Adopt train, electric commuter rail, or shared transit today.",
+    xpReward: 60,
+    pointsReward: 200,
+    difficulty: "Medium",
+    completed: false,
+    type: "daily"
+  },
+  {
+    id: "c4",
+    title: "Eat plant-based meal",
+    category: "food",
+    description: "Prepare a breakfast, lunch or dinner consisting solely of vegetables & grains.",
+    xpReward: 30,
+    pointsReward: 100,
+    difficulty: "Easy",
+    completed: false,
+    type: "daily"
+  },
+  {
+    id: "c5",
+    title: "Commute by bicycle",
+    category: "transport",
+    description: "Bicycle to and from school, college or work, saving 5 kg CO2.",
+    xpReward: 120,
+    pointsReward: 350,
+    difficulty: "Medium",
+    completed: false,
+    type: "weekly"
+  },
+  {
+    id: "c6",
+    title: "Set thermostat to 25°C",
+    category: "energy",
+    description: "Ensure household active cooling is optimized for less grid carbon draw.",
+    xpReward: 80,
+    pointsReward: 250,
+    difficulty: "Easy",
+    completed: false,
+    type: "weekly"
+  },
+  {
+    id: "c7",
+    title: "Zero Waste Week",
+    category: "waste",
+    description: "Produce zero disposable waste for 7 consecutive days.",
+    xpReward: 300,
+    pointsReward: 750,
+    difficulty: "Hard",
+    completed: false,
+    type: "special"
+  },
+  {
+    id: "c8",
+    title: "Eco Home Retrofit",
+    category: "energy",
+    description:
+      "Install LED lighting, energy timers, or switch electricity sources to certified solar.",
+    xpReward: 450,
+    pointsReward: 1000,
+    difficulty: "Hard",
+    completed: false,
+    type: "special"
+  }
 ];
 
 const DEFAULT_BADGES: Badge[] = [
-  { id: "b1", title: "Green Starter", description: "Complete onboarding and personal profile setup.", icon: "🌱", unlocked: false, requirement: "Setup profile" },
-  { id: "b2", title: "Green Streak", description: "Maintain a sustainable activity streak for over 5 days.", icon: "🔥", unlocked: false, requirement: "5-day streak" },
-  { id: "b3", title: "Tree Saver", description: "Accumulate more than 50 kg of CO2 savings.", icon: "🌳", unlocked: false, requirement: "50 kg CO2e saved" },
-  { id: "b4", title: "Eco Champion", description: "Rise to Level 10 and maintain active eco-warrior energy.", icon: "👑", unlocked: false, requirement: "Reach Level 10" },
-  { id: "b5", title: "Light Speed", description: "Record direct home appliance savings or switch to solar.", icon: "⚡", unlocked: false, requirement: "Reduce electricity" }
+  {
+    id: "b1",
+    title: "Green Starter",
+    description: "Complete onboarding and personal profile setup.",
+    icon: "🌱",
+    unlocked: false,
+    requirement: "Setup profile"
+  },
+  {
+    id: "b2",
+    title: "Green Streak",
+    description: "Maintain a sustainable activity streak for over 5 days.",
+    icon: "🔥",
+    unlocked: false,
+    requirement: "5-day streak"
+  },
+  {
+    id: "b3",
+    title: "Tree Saver",
+    description: "Accumulate more than 50 kg of CO2 savings.",
+    icon: "🌳",
+    unlocked: false,
+    requirement: "50 kg CO2e saved"
+  },
+  {
+    id: "b4",
+    title: "Eco Champion",
+    description: "Rise to Level 10 and maintain active eco-warrior energy.",
+    icon: "👑",
+    unlocked: false,
+    requirement: "Reach Level 10"
+  },
+  {
+    id: "b5",
+    title: "Light Speed",
+    description: "Record direct home appliance savings or switch to solar.",
+    icon: "⚡",
+    unlocked: false,
+    requirement: "Reduce electricity"
+  }
 ];
 
 const DEFAULT_SETTINGS: DbSettings = {
@@ -122,14 +314,20 @@ const DEFAULT_SETTINGS: DbSettings = {
 const DEFAULT_COMMUNITY: CommunityPost[] = [];
 
 const DEFAULT_CHATS: ChatMessage[] = [
-  { id: "init-1", sender: "ai", text: "Welcome to EcoSphere AI, your proactive climate-coaching environment! I am here to help you identify quick emission cuts, log receipts, or audit appliance logs with deep intelligence. Where would you like to start?", timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }
+  {
+    id: "init-1",
+    sender: "ai",
+    text: "Welcome to EcoSphere AI, your proactive climate-coaching environment! I am here to help you identify quick emission cuts, log receipts, or audit appliance logs with deep intelligence. Where would you like to start?",
+    timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+  }
 ];
 
 const DEFAULT_LEARNING: DbLearningArticle[] = [
   {
     id: "la-1",
     title: "Understanding CO2e Footprints",
-    content: "Carbon dioxide equivalent (CO2e) is a unit used to compare the climate impact of various greenhouse gases including methane and nitrous oxide based on their global warming potential. Minimizing everyday inputs is key to balancing the biosphere.",
+    content:
+      "Carbon dioxide equivalent (CO2e) is a unit used to compare the climate impact of various greenhouse gases including methane and nitrous oxide based on their global warming potential. Minimizing everyday inputs is key to balancing the biosphere.",
     category: "Science",
     co2SavedValue: 4.5,
     readProgress: 0,
@@ -141,7 +339,8 @@ const DEFAULT_LEARNING: DbLearningArticle[] = [
   {
     id: "la-2",
     title: "Vampire Power & Smart Adjustments",
-    content: "Microwaves, TVs, and wall adapters draw electricity even when on stand-by mode. Connecting household electronics to programmable smart outlets or switching appliance mains off is estimated to save 8-12% of baseline home electrical costs.",
+    content:
+      "Microwaves, TVs, and wall adapters draw electricity even when on stand-by mode. Connecting household electronics to programmable smart outlets or switching appliance mains off is estimated to save 8-12% of baseline home electrical costs.",
     category: "Energy",
     co2SavedValue: 6.2,
     readProgress: 0,
@@ -151,82 +350,6 @@ const DEFAULT_LEARNING: DbLearningArticle[] = [
     dateGenerated: "2026-06-09"
   }
 ];
-
-export function getProgression(xp: number): { level: number; xpNeeded: number; levelRank: string } {
-  const thresholds = [
-    { level: 1, minXp: 0, rank: "Seedling Planter" },
-    { level: 2, minXp: 500, rank: "Sprout Caretaker" },
-    { level: 3, minXp: 1500, rank: "Earth Guardian" },
-    { level: 4, minXp: 3000, rank: "Eco Watcher" },
-    { level: 5, minXp: 5000, rank: "Nature Custodian" },
-    { level: 6, minXp: 7400, rank: "Forest Protector" },
-    { level: 7, minXp: 10000, rank: "Green Master" },
-    { level: 8, minXp: 14000, rank: "Climate Warrior" },
-    { level: 9, minXp: 20000, rank: "Eco Commander" },
-    { level: 10, minXp: 30000, rank: "Biosphere Legend" }
-  ];
-
-  let active = thresholds[0];
-  for (const t of thresholds) {
-    if (xp >= t.minXp) {
-      active = t;
-    } else {
-      break;
-    }
-  }
-
-  const nextThreshold = thresholds.find(t => t.level === active.level + 1);
-  const xpNeeded = nextThreshold ? nextThreshold.minXp : active.minXp + 10000;
-
-  return {
-    level: active.level,
-    xpNeeded,
-    levelRank: active.rank
-  };
-}
-
-export function calculateStreakUpdate(profile: UserProfile, activityDate?: string) {
-  const today = activityDate || new Date().toISOString().split('T')[0];
-  const lastActiveDate = profile.lastActivityDate;
-
-  if (!lastActiveDate) {
-    return {
-      streak: 1,
-      longestStreak: Math.max(profile.longestStreak || 0, 1),
-      lastActivityDate: today
-    };
-  }
-
-  const lastDate = new Date(lastActiveDate);
-  const todayDate = new Date(today);
-  
-  lastDate.setHours(0,0,0,0);
-  todayDate.setHours(0,0,0,0);
-
-  const diffTime = todayDate.getTime() - lastDate.getTime();
-  const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) {
-    return {
-      streak: profile.streak,
-      longestStreak: Math.max(profile.longestStreak || 0, profile.streak),
-      lastActivityDate: today
-    };
-  } else if (diffDays === 1) {
-    const newStreak = profile.streak + 1;
-    return {
-      streak: newStreak,
-      longestStreak: Math.max(profile.longestStreak || 0, newStreak),
-      lastActivityDate: today
-    };
-  } else {
-    return {
-      streak: 1,
-      longestStreak: Math.max(profile.longestStreak || 0, 1),
-      lastActivityDate: today
-    };
-  }
-}
 
 export const useAppStore = create<AppState>((set, get) => ({
   profile: null,
@@ -244,15 +367,15 @@ export const useAppStore = create<AppState>((set, get) => ({
   learningArticles: [],
   settings: null,
   isLoadingStore: true,
-  dbInitStatus: 'uninitialized',
-  dbStatusMessage: 'Awaiting database engine...',
+  dbInitStatus: "uninitialized",
+  dbStatusMessage: "Awaiting database engine...",
 
   initStore: async () => {
     try {
-      set({ 
-        isLoadingStore: true, 
-        dbInitStatus: 'loading', 
-        dbStatusMessage: 'Connecting to browser storage (IndexedDB)...' 
+      set({
+        isLoadingStore: true,
+        dbInitStatus: "loading",
+        dbStatusMessage: "Connecting to browser storage (IndexedDB)..."
       });
 
       // Corruption recovery safety wrapper
@@ -262,24 +385,24 @@ export const useAppStore = create<AppState>((set, get) => ({
         }
       } catch (err) {
         console.warn("Database failed to open normally. Executing recovery rebuild.", err);
-        set({ 
-          dbInitStatus: 'corrupted', 
-          dbStatusMessage: 'Database corruption detected! Rebuilding storage...' 
+        set({
+          dbInitStatus: "corrupted",
+          dbStatusMessage: "Database corruption detected! Rebuilding storage..."
         });
-        
+
         // Attempt recovery rebuild by resetting Dexie local Tables
         await db.delete();
         await db.open();
-        
-        set({ 
-          dbInitStatus: 'recovered', 
-          dbStatusMessage: 'Database storage recovered successfully.' 
+
+        set({
+          dbInitStatus: "recovered",
+          dbStatusMessage: "Database storage recovered successfully."
         });
       }
 
-      set({ 
-        dbInitStatus: 'restoring', 
-        dbStatusMessage: 'Restoring Climate Profile & User History...' 
+      set({
+        dbInitStatus: "restoring",
+        dbStatusMessage: "Restoring Climate Profile & User History..."
       });
 
       // Fetch initial datasets
@@ -288,13 +411,13 @@ export const useAppStore = create<AppState>((set, get) => ({
         if (dbProfile.totalXP === undefined) dbProfile.totalXP = dbProfile.xp || 0;
         if (dbProfile.currentStreak === undefined) dbProfile.currentStreak = dbProfile.streak || 0;
 
-        const todayStr = new Date().toISOString().split('T')[0];
+        const todayStr = new Date().toISOString().split("T")[0];
         const lastActiveDate = dbProfile.lastActivityDate;
         if (lastActiveDate) {
           const lastDate = new Date(lastActiveDate);
           const todayDate = new Date(todayStr);
-          lastDate.setHours(0,0,0,0);
-          todayDate.setHours(0,0,0,0);
+          lastDate.setHours(0, 0, 0, 0);
+          todayDate.setHours(0, 0, 0, 0);
           const diffTime = todayDate.getTime() - lastDate.getTime();
           const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
           if (diffDays > 1) {
@@ -374,18 +497,18 @@ export const useAppStore = create<AppState>((set, get) => ({
         learningArticles: finalLearning,
         settings: finalSettings,
         isLoadingStore: false,
-        dbInitStatus: 'ready',
-        dbStatusMessage: 'Data synchronization completed!'
+        dbInitStatus: "ready",
+        dbStatusMessage: "Data synchronization completed!"
       });
 
       // Audit achievements once based on initial load data
       get().auditAchievements();
     } catch (e) {
       console.error("Dexie database initialize exception:", e);
-      set({ 
+      set({
         isLoadingStore: false,
-        dbInitStatus: 'error',
-        dbStatusMessage: 'Initialization error. Storage localized.'
+        dbInitStatus: "error",
+        dbStatusMessage: "Initialization error. Storage localized."
       });
     }
   },
@@ -393,7 +516,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   updateProfile: async (newProfile) => {
     const current = get().profile;
     // Calculate level metrics based on new/updated XP
-    let updatedXp = newProfile.xp !== undefined ? newProfile.xp : (current?.xp || 0);
+    let updatedXp = newProfile.xp !== undefined ? newProfile.xp : current?.xp || 0;
     const progression = getProgression(updatedXp);
     const isLevelUp = current && current.level > 0 && progression.level > current.level;
 
@@ -414,10 +537,24 @@ export const useAppStore = create<AppState>((set, get) => ({
       totalXP: updatedXp,
       xpNeeded: progression.xpNeeded,
       levelRank: progression.levelRank,
-      ecoPoints: newProfile.ecoPoints !== undefined ? newProfile.ecoPoints : (current?.ecoPoints || 1000),
-      streak: newProfile.streak !== undefined ? newProfile.streak : (newProfile.currentStreak !== undefined ? newProfile.currentStreak : (current?.streak || 0)),
-      currentStreak: newProfile.currentStreak !== undefined ? newProfile.currentStreak : (newProfile.streak !== undefined ? newProfile.streak : (current?.currentStreak || 0)),
-      hasCompletedOnboarding: newProfile.hasCompletedOnboarding !== undefined ? newProfile.hasCompletedOnboarding : (current?.hasCompletedOnboarding || true)
+      ecoPoints:
+        newProfile.ecoPoints !== undefined ? newProfile.ecoPoints : current?.ecoPoints || 1000,
+      streak:
+        newProfile.streak !== undefined
+          ? newProfile.streak
+          : newProfile.currentStreak !== undefined
+            ? newProfile.currentStreak
+            : current?.streak || 0,
+      currentStreak:
+        newProfile.currentStreak !== undefined
+          ? newProfile.currentStreak
+          : newProfile.streak !== undefined
+            ? newProfile.streak
+            : current?.currentStreak || 0,
+      hasCompletedOnboarding:
+        newProfile.hasCompletedOnboarding !== undefined
+          ? newProfile.hasCompletedOnboarding
+          : current?.hasCompletedOnboarding || true
     };
 
     set({ profile: consolidated, user: consolidated });
@@ -466,7 +603,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   addActivity: async (act) => {
     const id = act.id || "act-" + Date.now();
-    const date = act.date || new Date().toISOString().split('T')[0];
+    const date = act.date || new Date().toISOString().split("T")[0];
     const fullActivity: Activity = {
       ...act,
       id,
@@ -504,9 +641,9 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   deleteActivity: async (id) => {
-    const act = get().activities.find(a => a.id === id);
+    const act = get().activities.find((a) => a.id === id);
     if (act) {
-      const updated = get().activities.filter(a => a.id !== id);
+      const updated = get().activities.filter((a) => a.id !== id);
       set({ activities: updated });
       await db.activities.delete(id);
     }
@@ -530,7 +667,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   toggleGoalComplete: async (id) => {
-    const items = get().goals.map(g => {
+    const items = get().goals.map((g) => {
       if (g.id === id) {
         return { ...g, completed: true, currentValue: g.targetValue };
       }
@@ -538,7 +675,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     });
 
     set({ goals: items });
-    const target = items.find(g => g.id === id);
+    const target = items.find((g) => g.id === id);
     if (target) {
       await db.goals.put(target);
 
@@ -556,7 +693,7 @@ export const useAppStore = create<AppState>((set, get) => ({
           title: `Sustained Goal Complete: ${target.title}`,
           points: 300,
           type: "earn",
-          date: new Date().toISOString().split('T')[0]
+          date: new Date().toISOString().split("T")[0]
         };
         set({ transactions: [...get().transactions, tx] });
         await db.transactions.put(tx);
@@ -571,7 +708,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   incrementGoalProgress: async (id, amount) => {
-    const items = get().goals.map(g => {
+    const items = get().goals.map((g) => {
       if (g.id === id) {
         const nextValue = Number((g.currentValue + amount).toFixed(1));
         const isCompletedNow = nextValue >= g.targetValue;
@@ -585,7 +722,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     });
 
     set({ goals: items });
-    const target = items.find(g => g.id === id);
+    const target = items.find((g) => g.id === id);
     if (target) {
       await db.goals.put(target);
 
@@ -602,7 +739,7 @@ export const useAppStore = create<AppState>((set, get) => ({
             title: `Goal Complete: ${target.title}`,
             points: 300,
             type: "earn",
-            date: new Date().toISOString().split('T')[0]
+            date: new Date().toISOString().split("T")[0]
           };
           set({ transactions: [...get().transactions, tx] });
           await db.transactions.put(tx);
@@ -624,10 +761,10 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   completeChallenge: async (id) => {
     // Prevent duplicate claim / Claim once only guard
-    const ch = get().challenges.find(c => c.id === id);
+    const ch = get().challenges.find((c) => c.id === id);
     if (!ch || ch.completed) return;
 
-    const updated = get().challenges.map(c => {
+    const updated = get().challenges.map((c) => {
       if (c.id === id) {
         return { ...c, completed: true };
       }
@@ -638,7 +775,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     await db.challenges.put({ ...ch, completed: true });
 
     // Store a corresponding Activity log automatically to ensure timeline, carbon calculators, and reports updates
-    const date = new Date().toISOString().split('T')[0];
+    const date = new Date().toISOString().split("T")[0];
     const actId = "challenge-act-" + Date.now();
     const challengeActivity: Activity = {
       id: actId,
@@ -649,7 +786,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       pointsEarned: ch.pointsReward
     };
 
-    set(state => ({
+    set((state) => ({
       activities: [...state.activities, challengeActivity]
     }));
     await db.activities.put(challengeActivity);
@@ -686,7 +823,11 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     const profile = get().profile;
     const author = profile?.name || "Eco Warrior";
-    const avatar = profile?.profileImage || (profile?.name ? `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(profile.name)}` : "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150");
+    const avatar =
+      profile?.profileImage ||
+      (profile?.name
+        ? `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(profile.name)}`
+        : "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150");
 
     const newPost: CommunityPost = {
       id: "post-" + Date.now(),
@@ -718,13 +859,13 @@ export const useAppStore = create<AppState>((set, get) => ({
         ecoPoints: profile.ecoPoints + 50,
         xp: profile.xp + 25
       });
-      
+
       const tx: RewardTransaction = {
         id: "tx-" + Date.now(),
         title: `Community Organic Story Shared`,
         points: 50,
         type: "earn",
-        date: new Date().toISOString().split('T')[0]
+        date: new Date().toISOString().split("T")[0]
       };
       set({ transactions: [...get().transactions, tx] });
       await db.transactions.put(tx);
@@ -738,7 +879,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   likeCommunityPost: async (postId) => {
-    const updated = get().community.map(p => {
+    const updated = get().community.map((p) => {
       if (p.id === postId) {
         return {
           ...p,
@@ -749,7 +890,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       return p;
     });
     set({ community: updated });
-    const clicked = updated.find(p => p.id === postId);
+    const clicked = updated.find((p) => p.id === postId);
     if (clicked) {
       await db.community.put(clicked);
     }
@@ -758,8 +899,12 @@ export const useAppStore = create<AppState>((set, get) => ({
   commentCommunityPost: async (postId, text) => {
     const profile = get().profile;
     const authorName = profile?.name || "Eco Warrior";
-    const avatar = profile?.profileImage || (profile?.name ? `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(profile.name)}` : "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150");
-    
+    const avatar =
+      profile?.profileImage ||
+      (profile?.name
+        ? `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(profile.name)}`
+        : "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150");
+
     const newComment = {
       id: "comment-" + Date.now(),
       authorId: "user",
@@ -770,7 +915,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       replies: []
     };
 
-    const updated = get().community.map(p => {
+    const updated = get().community.map((p) => {
       if (p.id === postId) {
         const comments = p.commentsList || [];
         return {
@@ -782,7 +927,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       return p;
     });
     set({ community: updated });
-    const clicked = updated.find(p => p.id === postId);
+    const clicked = updated.find((p) => p.id === postId);
     if (clicked) {
       await db.community.put(clicked);
     }
@@ -791,8 +936,12 @@ export const useAppStore = create<AppState>((set, get) => ({
   replyCommentCommunityPost: async (postId, commentId, replyText) => {
     const profile = get().profile;
     const authorName = profile?.name || "Eco Warrior";
-    const avatar = profile?.profileImage || (profile?.name ? `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(profile.name)}` : "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150");
-    
+    const avatar =
+      profile?.profileImage ||
+      (profile?.name
+        ? `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(profile.name)}`
+        : "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150");
+
     const newReply = {
       id: "reply-" + Date.now(),
       authorId: "user",
@@ -802,9 +951,9 @@ export const useAppStore = create<AppState>((set, get) => ({
       timeString: "Just now"
     };
 
-    const updated = get().community.map(p => {
+    const updated = get().community.map((p) => {
       if (p.id === postId) {
-        const comments = (p.commentsList || []).map(c => {
+        const comments = (p.commentsList || []).map((c) => {
           if (c.id === commentId) {
             return {
               ...c,
@@ -822,20 +971,20 @@ export const useAppStore = create<AppState>((set, get) => ({
       return p;
     });
     set({ community: updated });
-    const clicked = updated.find(p => p.id === postId);
+    const clicked = updated.find((p) => p.id === postId);
     if (clicked) {
       await db.community.put(clicked);
     }
   },
 
   deleteCommunityPost: async (postId) => {
-    const updated = get().community.filter(p => p.id !== postId);
+    const updated = get().community.filter((p) => p.id !== postId);
     set({ community: updated });
     await db.community.delete(postId);
   },
 
   editCommunityPost: async (postId, newContent) => {
-    const updated = get().community.map(p => {
+    const updated = get().community.map((p) => {
       if (p.id === postId) {
         return {
           ...p,
@@ -846,14 +995,14 @@ export const useAppStore = create<AppState>((set, get) => ({
       return p;
     });
     set({ community: updated });
-    const clicked = updated.find(p => p.id === postId);
+    const clicked = updated.find((p) => p.id === postId);
     if (clicked) {
       await db.community.put(clicked);
     }
   },
 
   reportCommunityPost: async (postId) => {
-    const updated = get().community.map(p => {
+    const updated = get().community.map((p) => {
       if (p.id === postId) {
         return {
           ...p,
@@ -863,14 +1012,14 @@ export const useAppStore = create<AppState>((set, get) => ({
       return p;
     });
     set({ community: updated });
-    const clicked = updated.find(p => p.id === postId);
+    const clicked = updated.find((p) => p.id === postId);
     if (clicked) {
       await db.community.put(clicked);
     }
   },
 
   saveCommunityPost: async (postId) => {
-    const updated = get().community.map(p => {
+    const updated = get().community.map((p) => {
       if (p.id === postId) {
         return {
           ...p,
@@ -880,7 +1029,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       return p;
     });
     set({ community: updated });
-    const clicked = updated.find(p => p.id === postId);
+    const clicked = updated.find((p) => p.id === postId);
     if (clicked) {
       await db.community.put(clicked);
     }
@@ -899,11 +1048,16 @@ export const useAppStore = create<AppState>((set, get) => ({
     await db.scans.put(fullScanLog);
 
     // Auto-create and save corresponding Activity log to update analytics and timeline!
-    const date = new Date().toISOString().split('T')[0];
+    const date = new Date().toISOString().split("T")[0];
     const actId = "scan-act-" + Date.now();
     const activityName = scan.name;
-    const category = (scan.category || (scan.type === 'receipt' ? 'food' : scan.type === 'bill' ? 'energy' : 'shopping')) as CategoryType;
-    
+    const category = (scan.category ||
+      (scan.type === "receipt"
+        ? "food"
+        : scan.type === "bill"
+          ? "energy"
+          : "shopping")) as CategoryType;
+
     // Receipts generally represent carbon redacting savings; other scans list footprints
     let co2Val = scan.co2Value;
     if (scan.type === "receipt") {
@@ -921,7 +1075,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       pointsEarned: 150
     };
 
-    set(state => ({
+    set((state) => ({
       activities: [...state.activities, scanActivity]
     }));
     await db.activities.put(scanActivity);
@@ -941,7 +1095,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       await get().addRewardTransaction(
         `AI Environment Scan: ${scan.name}`,
         150, // EcoPoints
-        50,  // XP
+        50, // XP
         "scan",
         date
       );
@@ -955,7 +1109,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
 
     try {
-      const { NotificationService } = await import('../services/NotificationService');
+      const { NotificationService } = await import("../services/NotificationService");
       await NotificationService.notifyScanCompleted(scan.type, scan.co2Value);
     } catch (e) {
       console.warn("[addScan] NotificationService call failed.", e);
@@ -963,20 +1117,20 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   deleteScan: async (id) => {
-    const updated = get().scans.filter(s => s.id !== id);
+    const updated = get().scans.filter((s) => s.id !== id);
     set({ scans: updated });
     await db.scans.delete(id);
   },
 
   addNotification: async (title, body, category) => {
-    const { NotificationService } = await import('../services/NotificationService');
+    const { NotificationService } = await import("../services/NotificationService");
     await NotificationService.createNotification(title, body, category);
   },
 
   markNotificationRead: async (id) => {
-    const updated = get().notifications.map(n => n.id === id ? { ...n, read: true } : n);
+    const updated = get().notifications.map((n) => (n.id === id ? { ...n, read: true } : n));
     set({ notifications: updated });
-    const matched = updated.find(n => n.id === id);
+    const matched = updated.find((n) => n.id === id);
     if (matched) {
       await db.notifications.put(matched);
     }
@@ -988,26 +1142,29 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   bookmarkArticle: async (id) => {
-    const updated = get().learningArticles.map(a => a.id === id ? { ...a, bookmarked: !a.bookmarked } : a);
+    const updated = get().learningArticles.map((a) =>
+      a.id === id ? { ...a, bookmarked: !a.bookmarked } : a
+    );
     set({ learningArticles: updated });
-    const matched = updated.find(a => a.id === id);
+    const matched = updated.find((a) => a.id === id);
     if (matched) {
       await db.learningArticles.put(matched);
     }
   },
 
   completeArticle: async (id) => {
-    const updated = get().learningArticles.map(a => {
+    const updated = get().learningArticles.map((a) => {
       if (a.id === id && !a.completed) {
         return { ...a, completed: true, readProgress: 100 };
       }
       return a;
     });
 
-    const isFirstTimeCompletion = get().learningArticles.find(a => a.id === id)?.completed === false;
+    const isFirstTimeCompletion =
+      get().learningArticles.find((a) => a.id === id)?.completed === false;
 
     set({ learningArticles: updated });
-    const matched = updated.find(a => a.id === id);
+    const matched = updated.find((a) => a.id === id);
     if (matched) {
       await db.learningArticles.put(matched);
 
@@ -1016,7 +1173,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         const profile = get().profile;
         if (profile) {
           await get().updateProfile({
-            ecoPoints: profile.ecoPoints + (matched.xpValue * 2), // Double points
+            ecoPoints: profile.ecoPoints + matched.xpValue * 2, // Double points
             xp: profile.xp + matched.xpValue
           });
 
@@ -1025,7 +1182,7 @@ export const useAppStore = create<AppState>((set, get) => ({
             title: `Read Article: ${matched.title}`,
             points: matched.xpValue * 2,
             type: "earn",
-            date: new Date().toISOString().split('T')[0]
+            date: new Date().toISOString().split("T")[0]
           };
           set({ transactions: [...get().transactions, tx] });
           await db.transactions.put(tx);
@@ -1077,7 +1234,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     // We search current badges status
     let changed = false;
-    const auditedBadges = state.badges.map(b => {
+    const auditedBadges = state.badges.map((b) => {
       if (b.unlocked) return b; // Already unlocked
 
       let shouldUnlock = false;
@@ -1093,7 +1250,10 @@ export const useAppStore = create<AppState>((set, get) => ({
           break;
         case "b3":
           // Accumulate more than 50 kg of CO2 savings
-          const sumCo2 = state.activities.reduce((acc, current) => acc + (current.co2Value || 0), 0);
+          const sumCo2 = state.activities.reduce(
+            (acc, current) => acc + (current.co2Value || 0),
+            0
+          );
           shouldUnlock = sumCo2 >= 50;
           break;
         case "b4":
@@ -1102,7 +1262,7 @@ export const useAppStore = create<AppState>((set, get) => ({
           break;
         case "b5":
           // Power saver - adjust residential grids
-          const hasLoggedEnergy = state.activities.some(a => a.category === "energy");
+          const hasLoggedEnergy = state.activities.some((a) => a.category === "energy");
           shouldUnlock = hasLoggedEnergy;
           break;
       }
@@ -1121,7 +1281,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         return {
           ...b,
           unlocked: true,
-          unlockedDate: new Date().toISOString().split('T')[0]
+          unlockedDate: new Date().toISOString().split("T")[0]
         };
       }
 
@@ -1131,7 +1291,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     if (changed) {
       set({ badges: auditedBadges });
       // Bulk update committed to persistent DB tables
-      auditedBadges.forEach(b => {
+      auditedBadges.forEach((b) => {
         db.badges.put(b);
       });
     }
@@ -1141,7 +1301,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     const profile = get().profile;
     if (!profile) return;
 
-    const date = dateArg || new Date().toISOString().split('T')[0];
+    const date = dateArg || new Date().toISOString().split("T")[0];
     const isSpend = points < 0 || source === "marketplace";
     const tx: RewardTransaction = {
       id: "tx-" + Date.now() + "-" + Math.floor(Math.random() * 1000),
@@ -1159,7 +1319,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     // Dynamic Sum calculations
     let computedPoints = 0;
     let computedXp = 0;
-    dbTransactions.forEach(t => {
+    dbTransactions.forEach((t) => {
       if (t.type === "earn") {
         computedPoints += t.points || 0;
         computedXp += (t as any).xpEarned || 0;
@@ -1190,10 +1350,14 @@ export const useAppStore = create<AppState>((set, get) => ({
     const profile = get().profile;
     if (!profile) return;
 
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = new Date().toISOString().split("T")[0];
 
     // Double-check: Check memory state & db profile to prevent duplicate claims
-    if (profile.dailyMissionClaimedDate === todayStr || profile.lastClaimDate === todayStr || profile.lastRewardClaimDate === todayStr) {
+    if (
+      profile.dailyMissionClaimedDate === todayStr ||
+      profile.lastClaimDate === todayStr ||
+      profile.lastRewardClaimDate === todayStr
+    ) {
       console.warn("Daily mission already claimed today according to memory profile.");
       return;
     }
@@ -1203,9 +1367,9 @@ export const useAppStore = create<AppState>((set, get) => ({
     try {
       // Direct Dexie database double check to prevent multiple tab race conditions
       const existingTx = await db.transactions
-        .filter(t => t.source === "daily-mission" && t.date === todayStr)
+        .filter((t) => t.source === "daily-mission" && t.date === todayStr)
         .first();
-      
+
       if (existingTx) {
         console.warn("Daily mission transaction already exists in persistent database.");
         await get().updateProfile({
@@ -1250,7 +1414,6 @@ export const useAppStore = create<AppState>((set, get) => ({
 
       // Explicitly trigger badges check
       get().auditAchievements();
-
     } catch (err) {
       console.error("Error during transaction claimDailyMission:", err);
     } finally {

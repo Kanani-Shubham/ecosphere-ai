@@ -1,5 +1,9 @@
-import { TranslationService, SupportedLanguages, ALL_DICTIONARIES } from './translations/TranslationService';
-import { useTranslation } from './translations/useTranslation';
+import {
+  TranslationService,
+  SupportedLanguages,
+  ALL_DICTIONARIES
+} from "./translations/TranslationService";
+import { useTranslation } from "./translations/useTranslation";
 
 export type { SupportedLanguages };
 export { TranslationService, useTranslation };
