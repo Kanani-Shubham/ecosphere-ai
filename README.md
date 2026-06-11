@@ -26,7 +26,7 @@ https://github.com/Kanani-Shubham/ecosphere-ai
 
 ### Demo Video
 
-[play Demo video ](https://www.linkedin.com/posts/shubham-kanani-5694802b3_hack2skill-promptwars-ecosphereai-activity-7470680933365514241-lYCp?utm_source=share&utm_medium=member_android&rcm=ACoAAEtaqyEB5j6zAkPtAsqNrEsMoNzWqC_Rigs)
+[Play Demo Video ](https://www.linkedin.com/posts/shubham-kanani-5694802b3_hack2skill-promptwars-ecosphereai-activity-7470680933365514241-lYCp?utm_source=share&utm_medium=member_android&rcm=ACoAAEtaqyEB5j6zAkPtAsqNrEsMoNzWqC_Rigs)
 
 ### LinkedIn Project Showcase
 
