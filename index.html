@@ -3,11 +3,82 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
+    <title>EcoSphere AI | AI-Powered Carbon Footprint Awareness Platform</title>
+    
+    <!-- Primary Metadata -->
+    <meta name="description" content="Track, analyze and reduce carbon emissions using Gemini Vision, AI sustainability insights, gamification and community-driven climate action." />
+    <meta name="keywords" content="Carbon Footprint, Climate AI, Gemini Vision, Sustainability Platform, Environmental Analytics, Climate Action, EcoSphere AI, Green Technology" />
+    <meta name="author" content="EcoSphere AI Team" />
+
+    <!-- PWA integration resources -->
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="apple-touch-icon" href="/icon.svg" />
+    <meta name="theme-color" content="#059669" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="EcoSphere" />
+
+    <!-- Open Graph Protocol metadata (Facebook, LinkedIn, Discord etc) -->
+    <meta property="og:title" content="EcoSphere AI | AI-Powered Carbon Footprint Awareness Platform" />
+    <meta property="og:description" content="Track, analyze and reduce carbon emissions using Gemini Vision, AI sustainability insights, gamification and community-driven climate action." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://echosphere-ai.netlify.app/" />
+    <meta property="og:image" content="https://echosphere-ai.netlify.app/icon.svg" />
+    <meta property="og:site_name" content="EcoSphere AI" />
+
+    <!-- Twitter Card metadata -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="EcoSphere AI | AI-Powered Carbon Footprint Awareness Platform" />
+    <meta name="twitter:description" content="Track, analyze and reduce carbon emissions using Gemini Vision, AI sustainability insights, gamification and community-driven climate action." />
+    <meta name="twitter:image" content="https://echosphere-ai.netlify.app/icon.svg" />
+
+    <!-- Schema.org Enterprise JSON-LD structured layout payload -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "EcoSphere AI",
+        "alternateName": "EcoSphere",
+        "description": "Track, analyze and reduce carbon emissions using Gemini Vision, AI sustainability insights, gamification and community-driven climate action.",
+        "url": "https://echosphere-ai.netlify.app/",
+        "applicationCategory": "EducationalApplication, BusinessApplication",
+        "operatingSystem": "All",
+        "browserRequirements": "Requires JavaScript. Requires HTML5.",
+        "author": {
+          "@type": "Organization",
+          "name": "EcoSphere AI Team"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "0.00",
+          "priceCurrency": "USD"
+        }
+      }
+    </script>
   </head>
-  <body>
+  <body class="bg-slate-50 text-slate-900 selection:bg-emerald-100 selection:text-emerald-900">
+    <!-- WCAG Interactive Link: Skip to Content bypass anchor -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 bg-emerald-600 text-white font-semibold px-4 py-2 rounded-xl border border-emerald-500 shadow-lg text-sm">
+      Skip to Content
+    </a>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Register service worker -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => {
+              console.log('EcoSphere SW registered successfully:', reg.scope);
+            })
+            .catch(error => {
+              console.error('EcoSphere SW registration failure:', error);
+            });
+        });
+      }
+    </script>
   </body>
 </html>
-

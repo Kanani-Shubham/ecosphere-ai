@@ -91,44 +91,56 @@ export default function OnboardingView({ onComplete }: OnboardingViewProps) {
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Your Name</label>
+                  <label htmlFor="onboarding-name" className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Your Name</label>
                   <input 
+                    id="onboarding-name"
+                    name="name"
+                    aria-required="true"
                     type="text" 
                     placeholder="e.g. Vivek" 
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 font-medium text-slate-800 text-sm"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 font-medium text-slate-800 text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Your Age</label>
+                  <label htmlFor="onboarding-age" className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Your Age</label>
                   <input 
+                    id="onboarding-age"
+                    name="age"
+                    aria-required="true"
                     type="number" 
                     placeholder="e.g. 24" 
                     value={formData.age}
                     onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 font-medium text-slate-800 text-sm"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 font-medium text-slate-800 text-sm"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Country</label>
+                    <label htmlFor="onboarding-country" className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Country</label>
                     <input 
+                      id="onboarding-country"
+                      name="country"
+                      aria-required="true"
                       type="text" 
                       placeholder="e.g. USA" 
                       value={formData.country}
                       onChange={(e) => setFormData({ ...formData, country: e.target.value })}
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 font-medium text-slate-800 text-sm"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 font-medium text-slate-800 text-sm"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">City</label>
+                    <label htmlFor="onboarding-city" className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">City</label>
                     <input 
+                      id="onboarding-city"
+                      name="city"
+                      aria-required="true"
                       type="text" 
                       placeholder="e.g. Boston" 
                       value={formData.city}
                       onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 font-medium text-slate-800 text-sm"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 font-medium text-slate-800 text-sm"
                     />
                   </div>
                 </div>

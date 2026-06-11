@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="0" fill="#047857" />
+  <!-- Safe zone contained graphic -->
+  <g transform="translate(56, 56) scale(0.78)">
+    <circle cx="256" cy="256" r="230" fill="#10b981" />
+    <path d="M256 90 
+             C160 90, 110 180, 110 270 
+             C110 370, 180 410, 256 410 
+             C332 410, 402 370, 402 270 
+             C402 180, 352 90, 256 90 Z" 
+          fill="#ffffff" />
+    <path d="M256 90 
+             C212 150, 190 220, 190 270 
+             C190 330, 218 380, 256 410 Z" 
+          fill="#ecfdf5" opacity="0.8" />
+    <path d="M256 120 L256 410" stroke="#059669" stroke-width="8" stroke-linecap="round" />
+    <path d="M256 200 C280 190, 310 190, 330 200" stroke="#059669" stroke-width="8" stroke-linecap="round" fill="none" />
+    <path d="M256 270 C280 260, 320 260, 340 280" stroke="#059669" stroke-width="8" stroke-linecap="round" fill="none" />
+    <path d="M256 340 C280 330, 310 335, 325 350" stroke="#059669" stroke-width="8" stroke-linecap="round" fill="none" />
+  </g>
+</svg>

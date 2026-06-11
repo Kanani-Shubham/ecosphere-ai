@@ -19,10 +19,11 @@ export default function DashboardView({ profile, activities, onNavigate, onAddCu
   // Read streak and ecoPoints from the central Zustand user store for consistency
   const currentStreak = useStore((state) => state.user?.currentStreak) ?? useStore.getState().user?.currentStreak ?? 0;
   const userEcoPoints = useStore((state) => state.user?.ecoPoints) ?? useStore.getState().user?.ecoPoints ?? profile.ecoPoints ?? 0;
+  const lastRewardClaimDate = useStore((state) => state.user?.lastRewardClaimDate);
 
   // Today's mission completion trigger calculated dynamically (anti-exploit, persists on refresh/redirect)
   const todayStr = new Date().toISOString().split('T')[0];
-  const missionClaimed = profile.dailyMissionClaimedDate === todayStr || profile.lastClaimDate === todayStr || profile.lastRewardClaimDate === todayStr || useStore((state) => state.user?.lastRewardClaimDate) === todayStr;
+  const missionClaimed = profile.dailyMissionClaimedDate === todayStr || profile.lastClaimDate === todayStr || profile.lastRewardClaimDate === todayStr || lastRewardClaimDate === todayStr;
 
   // Quick helper to categorize recent activities
   const recentActivities = activities.slice(-3).reverse();
@@ -56,16 +57,18 @@ export default function DashboardView({ profile, activities, onNavigate, onAddCu
             Here's your eco impact today
           </p>
         </div>
-        <div 
+        <button 
           onClick={() => onNavigate("profile")}
-          className="w-10 h-10 rounded-full border-2 border-brand-500 bg-brand-100 flex items-center justify-center overflow-hidden font-bold text-brand-800 cursor-pointer shadow-sm hover:scale-105 transition-all shrink-0"
+          aria-label={`View or edit ${profile.name}'s profile and goals`}
+          title="Go to Profile"
+          className="w-10 h-10 rounded-full border-2 border-brand-500 bg-brand-100 flex items-center justify-center overflow-hidden font-bold text-brand-800 cursor-pointer shadow-sm hover:scale-105 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1 transition-all shrink-0"
         >
           {profile.profileImage ? (
-            <img src={profile.profileImage} alt={profile.name} className="w-full h-full object-cover" />
+            <img src={profile.profileImage} alt={`Profile avatar of ${profile.name}`} className="w-full h-full object-cover" />
           ) : (
             <span>{profile.name[0]?.toUpperCase()}</span>
           )}
-        </div>
+        </button>
       </div>
 
       {/* Main Carbon Arc radial scorecard */}
@@ -107,33 +110,39 @@ export default function DashboardView({ profile, activities, onNavigate, onAddCu
 
         {/* Highlight Stats subcards (S3 Trees saved, Eco points) */}
         <div className="grid grid-cols-2 gap-3 w-full mt-6">
-          <div 
+          <button 
+            type="button"
             onClick={() => onNavigate("offset")}
-            className="bg-slate-50/50 hover:bg-slate-50 transition-all cursor-pointer border border-slate-100 rounded-2xl p-3 flex gap-2.5 items-center"
+            aria-label={`View dynamic trees saved statistics. Currently ${totalTreesSaved} trees saved`}
+            title="View Trees Saved"
+            className="text-left bg-slate-50/50 hover:bg-slate-50 transition-all cursor-pointer border border-slate-100 rounded-2xl p-3 flex gap-2.5 items-center focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1"
           >
-            <div className="w-9 h-9 bg-emerald-100 rounded-xl flex items-center justify-center">
-              <Leaf className="w-5 h-5 text-emerald-600" />
+            <div className="w-9 h-9 bg-emerald-100 rounded-xl flex items-center justify-center shrink-0">
+              <Leaf className="w-5 h-5 text-emerald-600" aria-hidden="true" />
             </div>
             <div>
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">Trees Saved</p>
               <p className="text-base font-bold text-slate-800 mt-1">{totalTreesSaved}</p>
               <p className="text-[9px] text-slate-400 mt-0.5 leading-none">From Reductions</p>
             </div>
-          </div>
+          </button>
 
-          <div 
+          <button 
+            type="button"
             onClick={() => onNavigate("wallet")}
-            className="bg-slate-50/50 hover:bg-slate-50 transition-all cursor-pointer border border-slate-100 rounded-2xl p-3 flex gap-2.5 items-center"
+            aria-label={`View wallet and rewards. Currently ${userEcoPoints.toLocaleString()} eco points`}
+            title="View Eco Points"
+            className="text-left bg-slate-50/50 hover:bg-slate-50 transition-all cursor-pointer border border-slate-100 rounded-2xl p-3 flex gap-2.5 items-center focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1"
           >
-            <div className="w-9 h-9 bg-amber-100 rounded-xl flex items-center justify-center">
-              <Award className="w-5 h-5 text-amber-600" />
+            <div className="w-9 h-9 bg-amber-100 rounded-xl flex items-center justify-center shrink-0">
+              <Award className="w-5 h-5 text-amber-600" aria-hidden="true" />
             </div>
             <div>
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none">Eco Points</p>
               <p className="text-base font-bold text-slate-800 mt-1">{userEcoPoints.toLocaleString()}</p>
               <p className="text-[9px] text-slate-400 mt-0.5 leading-none">Total Points</p>
             </div>
-          </div>
+          </button>
         </div>
       </div>
 
@@ -161,7 +170,9 @@ export default function DashboardView({ profile, activities, onNavigate, onAddCu
                 onClick={() => {
                   useStore.getState().claimDailyMission();
                 }}
-                className="bg-white text-emerald-700 font-bold px-4 py-2 rounded-xl text-xs shadow-md shadow-emerald-800/10 hover:bg-emerald-50 transition-all w-full sm:w-auto animate-bounce"
+                aria-label="Claim +250 Points daily sustainability challenge reward"
+                title="Claim Daily EcoPoints"
+                className="bg-white text-emerald-700 font-bold px-4 py-2 rounded-xl text-xs shadow-md shadow-emerald-800/10 hover:bg-emerald-50 focus:outline-none focus:ring-4 focus:ring-white focus:ring-offset-2 focus:ring-offset-emerald-600 transition-all w-full sm:w-auto animate-bounce cursor-pointer"
               >
                 Claim +250 Points
               </button>
@@ -179,178 +190,216 @@ export default function DashboardView({ profile, activities, onNavigate, onAddCu
         <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3">Quick Eco Tools</h3>
         <div className="grid grid-cols-2 gap-3" id="actions-grid">
           
-          <div 
+          <button 
+            type="button"
             onClick={() => onNavigate("ai-coach")}
-            className="bg-white hover:border-brand-300 border border-slate-100 p-4 rounded-2xl shadow-sm transition-all cursor-pointer flex flex-col justify-between min-h-[110px]"
+            aria-label="AI Eco Coach - Chat live with Gemini for custom eco reduction tips"
+            title="AI Eco Coach"
+            className="text-left bg-white hover:border-brand-300 border border-slate-100 p-4 rounded-2xl shadow-sm transition-all cursor-pointer flex flex-col justify-between min-h-[110px] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1"
           >
-            <div className="w-9 h-9 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
-              <Sparkles className="w-5 h-5" />
+            <div className="w-9 h-9 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 shrink-0">
+              <Sparkles className="w-5 h-5" aria-hidden="true" />
             </div>
             <div>
               <p className="font-bold text-sm text-slate-800 mt-2">AI Eco Coach</p>
               <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">Chat live with Gemini for custom eco reduction tips</p>
             </div>
-          </div>
+          </button>
 
-          <div 
+          <button 
+            type="button"
             onClick={() => onNavigate("ai-insights")}
-            className="bg-white hover:border-brand-300 border border-slate-100 p-4 rounded-2xl shadow-sm transition-all cursor-pointer flex flex-col justify-between min-h-[110px]"
+            aria-label="AI Insights - Personalized feedback, analysis, and custom goals"
+            title="AI Insights"
+            className="text-left bg-white hover:border-brand-300 border border-slate-100 p-4 rounded-2xl shadow-sm transition-all cursor-pointer flex flex-col justify-between min-h-[110px] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1"
           >
-            <div className="w-9 h-9 bg-teal-50 rounded-xl flex items-center justify-center text-teal-600">
-              <Compass className="w-5 h-5" />
+            <div className="w-9 h-9 bg-teal-50 rounded-xl flex items-center justify-center text-teal-600 shrink-0">
+              <Compass className="w-5 h-5" aria-hidden="true" />
             </div>
             <div>
               <p className="font-bold text-sm text-slate-800 mt-2">AI Insights</p>
               <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">Personalized feedback, analysis, and custom goals</p>
             </div>
-          </div>
+          </button>
 
-          <div 
+          <button 
+            type="button"
             onClick={() => onNavigate("what-if")}
-            className="bg-white hover:border-brand-300 border border-slate-100 p-4 rounded-2xl shadow-sm transition-all cursor-pointer flex flex-col justify-between min-h-[110px]"
+            aria-label="Carbon What-If - Hypothesize EV, Vegan, solar changes in real time"
+            title="Carbon What-If"
+            className="text-left bg-white hover:border-brand-300 border border-slate-100 p-4 rounded-2xl shadow-sm transition-all cursor-pointer flex flex-col justify-between min-h-[110px] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1"
           >
-            <div className="w-9 h-9 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600">
-              <Cpu className="w-5 h-5" />
+            <div className="w-9 h-9 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600 shrink-0">
+              <Cpu className="w-5 h-5" aria-hidden="true" />
             </div>
             <div>
               <p className="font-bold text-sm text-slate-800 mt-2">Carbon What-If</p>
               <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">Hypothesize EV, Vegan, solar changes in real time</p>
             </div>
-          </div>
+          </button>
 
-          <div 
+          <button 
+            type="button"
             onClick={() => onNavigate("digital-twin")}
-            className="bg-white hover:border-brand-300 border border-slate-100 p-4 rounded-2xl shadow-sm transition-all cursor-pointer flex flex-col justify-between min-h-[110px]"
+            aria-label="Digital Twin - Carbon projections on Current Self vs 2050 Earth"
+            title="Digital Twin"
+            className="text-left bg-white hover:border-brand-300 border border-slate-100 p-4 rounded-2xl shadow-sm transition-all cursor-pointer flex flex-col justify-between min-h-[110px] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1"
           >
-            <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
-              <Users className="w-5 h-5" />
+            <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 shrink-0">
+              <Users className="w-5 h-5" aria-hidden="true" />
             </div>
             <div>
               <p className="font-bold text-sm text-slate-800 mt-2">Digital Twin</p>
               <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">Carbon projections on Current Self vs 2050 Earth</p>
             </div>
-          </div>
+          </button>
 
-          <div 
+          <button 
+            type="button"
             onClick={() => onNavigate("energy-analyzer")}
-            className="bg-white hover:border-brand-300 border border-slate-100 p-4 rounded-2xl shadow-sm transition-all cursor-pointer flex flex-col justify-between min-h-[110px]"
+            aria-label="Energy Analyzer - Log appliances and audit household grid draw"
+            title="Energy Analyzer"
+            className="text-left bg-white hover:border-brand-300 border border-slate-100 p-4 rounded-2xl shadow-sm transition-all cursor-pointer flex flex-col justify-between min-h-[110px] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1"
           >
-            <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500">
-              <Zap className="w-5 h-5" />
+            <div className="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500 shrink-0">
+              <Zap className="w-5 h-5" aria-hidden="true" />
             </div>
             <div>
               <p className="font-bold text-sm text-slate-800 mt-2">Energy Analyzer</p>
               <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">Log appliances and audit household grid draw</p>
             </div>
-          </div>
+          </button>
 
-          <div 
+          <button 
+            type="button"
             onClick={() => onNavigate("travel-impact")}
-            className="bg-white hover:border-brand-300 border border-slate-100 p-4 rounded-2xl shadow-sm transition-all cursor-pointer flex flex-col justify-between min-h-[110px]"
+            aria-label="Travel Impact - Route comparisons of Car vs Train, EV & Walk"
+            title="Travel Impact"
+            className="text-left bg-white hover:border-brand-300 border border-slate-100 p-4 rounded-2xl shadow-sm transition-all cursor-pointer flex flex-col justify-between min-h-[110px] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1"
           >
-            <div className="w-9 h-9 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
-              <Navigation className="w-5 h-5" />
+            <div className="w-9 h-9 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 shrink-0">
+              <Navigation className="w-5 h-5" aria-hidden="true" />
             </div>
             <div>
               <p className="font-bold text-sm text-slate-800 mt-2">Travel Impact</p>
               <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">Route comparisons of Car vs Train, EV & Walk</p>
             </div>
-          </div>
+          </button>
 
-          <div 
+          <button 
+            type="button"
             onClick={() => onNavigate("offset")}
-            className="bg-white hover:border-brand-300 border border-slate-100 p-4 rounded-2xl shadow-sm transition-all cursor-pointer flex flex-col justify-between min-h-[110px]"
+            aria-label="Carbon Offset - Fund certified solar and plantation initiatives"
+            title="Carbon Offset"
+            className="text-left bg-white hover:border-brand-300 border border-slate-100 p-4 rounded-2xl shadow-sm transition-all cursor-pointer flex flex-col justify-between min-h-[110px] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1"
           >
-            <div className="w-9 h-9 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
-              <Leaf className="w-5 h-5" />
+            <div className="w-9 h-9 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 shrink-0">
+              <Leaf className="w-5 h-5" aria-hidden="true" />
             </div>
             <div>
               <p className="font-bold text-sm text-slate-800 mt-2">Carbon Offset</p>
               <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">Fund certified solar and plantation initiatives</p>
             </div>
-          </div>
+          </button>
 
-          <div 
+          <button 
+            type="button"
             onClick={() => onNavigate("learning-hub")}
-            className="bg-white hover:border-brand-300 border border-slate-100 p-4 rounded-2xl shadow-sm transition-all cursor-pointer flex flex-col justify-between min-h-[110px]"
+            aria-label="Learning Hub - Sustaining education lessons, quizzes & metrics"
+            title="Learning Hub"
+            className="text-left bg-white hover:border-brand-300 border border-slate-100 p-4 rounded-2xl shadow-sm transition-all cursor-pointer flex flex-col justify-between min-h-[110px] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1"
           >
-            <div className="w-9 h-9 bg-sky-50 rounded-xl flex items-center justify-center text-sky-600">
-              <BookOpen className="w-5 h-5" />
+            <div className="w-9 h-9 bg-sky-50 rounded-xl flex items-center justify-center text-sky-600 shrink-0">
+              <BookOpen className="w-5 h-5" aria-hidden="true" />
             </div>
             <div>
               <p className="font-bold text-sm text-slate-800 mt-2">Learning Hub</p>
               <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">Sustaining education lessons, quizzes & metrics</p>
             </div>
-          </div>
+          </button>
 
         </div>
       </div>
 
       {/* S35, S36 Supplemental Timelines, Planner, Heatmaps, Org grids */}
       <div className="grid grid-cols-2 gap-3">
-        <div 
+        <button 
+          type="button"
           onClick={() => onNavigate("timeline")}
-          className="bg-white hover:border-brand-300 border border-slate-100 p-4 rounded-2xl shadow-sm transition-all cursor-pointer flex items-center gap-3"
+          aria-label="Eco Timeline - view historical log charts and metrics"
+          title="Eco Timeline"
+          className="text-left bg-white hover:border-brand-300 border border-slate-100 p-4 rounded-2xl shadow-sm transition-all cursor-pointer flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1"
         >
-          <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-600">
-            <Calendar className="w-4 h-4" />
+          <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-600 shrink-0">
+            <Calendar className="w-4 h-4" aria-hidden="true" />
           </div>
           <div>
-            <p className="font-bold text-xs text-slate-800 select-none">Eco Timeline</p>
-            <p className="text-[9px] text-slate-400 select-none">Historic logs timeline</p>
+            <p className="font-bold text-xs text-slate-800">Eco Timeline</p>
+            <p className="text-[9px] text-slate-400">Historic logs timeline</p>
           </div>
-        </div>
+        </button>
 
-        <div 
+        <button 
+          type="button"
           onClick={() => onNavigate("heatmap")}
-          className="bg-white hover:border-brand-300 border border-slate-100 p-4 rounded-2xl shadow-sm transition-all cursor-pointer flex items-center gap-3"
+          aria-label="Emissions Grid - view Category heat map of your footprint"
+          title="Emissions Grid"
+          className="text-left bg-white hover:border-brand-300 border border-slate-100 p-4 rounded-2xl shadow-sm transition-all cursor-pointer flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1"
         >
-          <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-600">
-            <Globe className="w-4 h-4" />
+          <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-600 shrink-0">
+            <Globe className="w-4 h-4" aria-hidden="true" />
           </div>
           <div>
-            <p className="font-bold text-xs text-slate-800 select-none">Emissions Grid</p>
-            <p className="text-[9px] text-slate-400 select-none">Category heat map</p>
+            <p className="font-bold text-xs text-slate-800">Emissions Grid</p>
+            <p className="text-[9px] text-slate-400">Category heat map</p>
           </div>
-        </div>
+        </button>
 
-        <div 
+        <button 
+          type="button"
           onClick={() => onNavigate("family-dashboard")}
-          className="bg-white hover:border-brand-300 border border-slate-100 p-4 rounded-2xl shadow-sm transition-all cursor-pointer flex items-center gap-3"
+          aria-label="Family Dashboard - co-track dynamic carbon impact metrics"
+          title="Family Dashboard"
+          className="text-left bg-white hover:border-brand-300 border border-slate-100 p-4 rounded-2xl shadow-sm transition-all cursor-pointer flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1"
         >
-          <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-600">
-            <Users className="w-4 h-4" />
+          <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-600 shrink-0">
+            <Users className="w-4 h-4" aria-hidden="true" />
           </div>
           <div>
-            <p className="font-bold text-xs text-slate-800 select-none">Family Dashboard</p>
-            <p className="text-[9px] text-slate-400 select-none">Co-track family impact</p>
+            <p className="font-bold text-xs text-slate-800">Family Dashboard</p>
+            <p className="text-[9px] text-slate-400">Co-track family impact</p>
           </div>
-        </div>
+        </button>
 
-        <div 
+        <button 
+          type="button"
           onClick={() => onNavigate("org-dashboard")}
-          className="bg-white hover:border-brand-300 border border-slate-100 p-4 rounded-2xl shadow-sm transition-all cursor-pointer flex items-center gap-3"
+          aria-label="Organization Dashboard - view community carbon score"
+          title="Organization"
+          className="text-left bg-white hover:border-brand-300 border border-slate-100 p-4 rounded-2xl shadow-sm transition-all cursor-pointer flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1"
         >
-          <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-600">
-            <Building className="w-4 h-4" />
+          <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center text-slate-600 shrink-0">
+            <Building className="w-4 h-4" aria-hidden="true" />
           </div>
           <div>
-            <p className="font-bold text-xs text-slate-800 select-none">Organization</p>
-            <p className="text-[9px] text-slate-400 select-none">Group carbon score</p>
+            <p className="font-bold text-xs text-slate-800">Organization</p>
+            <p className="text-[9px] text-slate-400">Group carbon score</p>
           </div>
-        </div>
+        </button>
       </div>
 
       {/* S3 Recent Activities & Empty/Populated State */}
       <div className="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold text-sm text-slate-800">Recent Activities</h3>
-          <span 
-            className="text-[11px] font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 px-2.5 py-1 rounded-lg cursor-pointer transform hover:translate-x-0.5 transition-all select-none"
+          <button 
+            type="button"
+            className="text-[11px] font-bold text-brand-600 bg-brand-50 hover:bg-brand-100 px-2.5 py-1 rounded-lg cursor-pointer transform hover:translate-x-0.5 transition-all focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1"
             onClick={() => onNavigate("stats")}
+            aria-label="See all carbon footprints and detailed emissions statistics"
           >
             See All
-          </span>
+          </button>
         </div>
 
         {recentActivities.length === 0 ? (

@@ -682,6 +682,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   addCommunityPost: async (content, category, image, postType) => {
+    if (!content || !content.trim()) return;
+
     const profile = get().profile;
     const author = profile?.name || "Eco Warrior";
     const avatar = profile?.profileImage || (profile?.name ? `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(profile.name)}` : "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150");

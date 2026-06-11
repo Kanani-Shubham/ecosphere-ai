@@ -138,7 +138,7 @@ export default function App() {
         {/* Absolute Mobile-Framed Width bounds constraint to preserve design aesthetics */}
         <div className="w-full max-w-md bg-slate-50 flex flex-col justify-between border-x border-slate-100 shadow-2xl relative min-h-screen">
           
-          <main className="flex-grow p-4 md:p-6 overflow-y-auto w-full">
+          <main id="main-content" className="flex-grow p-4 md:p-6 overflow-y-auto w-full outline-none" tabIndex={-1}>
             <AnimatePresence mode="wait">
               
               {/* SCREEN 1: Splash Screen */}
@@ -242,7 +242,7 @@ export default function App() {
 
           {/* BOTTOM NAVIGATION SHELL BLOCK */}
           {currentScreen === "app" && !activeAuxView && (
-            <nav className="sticky bottom-0 bg-white border-t border-slate-100 px-4 py-3 pb-5 flex justify-between items-center z-40 rounded-t-3xl shadow-lg shadow-teal-900/10" id="bottom-navigation">
+            <nav aria-label="Primary Navigation" className="sticky bottom-0 bg-white border-t border-slate-100 px-4 py-3 pb-5 flex justify-between items-center z-40 rounded-t-3xl shadow-lg shadow-teal-900/10" id="bottom-navigation">
               {[
                 { id: "home", label: getLocalized(lang, "nav_home"), icon: Home },
                 { id: "challenges", label: getLocalized(lang, "nav_challenges"), icon: Trophy },
@@ -259,11 +259,14 @@ export default function App() {
                       setActiveTab(tab.id as any);
                       setActiveAuxView(null);
                     }}
-                    className={`flex flex-col items-center justify-center p-2 rounded-2xl transition-all relative ${
+                    aria-label={`${tab.label} tab`}
+                    aria-current={isSelected ? "page" : undefined}
+                    title={tab.label}
+                    className={`flex flex-col items-center justify-center p-2 rounded-2xl transition-all relative focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1 ${
                       isSelected ? 'text-brand-600 scale-105 font-bold' : 'text-slate-400 hover:text-slate-700'
                     }`}
                   >
-                    <Icon className="w-5.5 h-5.5" />
+                    <Icon className="w-5.5 h-5.5" aria-hidden="true" />
                     <span className="text-[9px] mt-1 tracking-wider uppercase font-extrabold">{tab.label}</span>
                     {isSelected && (
                       <motion.div 

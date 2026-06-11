@@ -254,7 +254,7 @@ function AICoachView({ profile, onBack }: { profile: UserProfile; onBack: () => 
           onKeyDown={(e) => e.key === "Enter" && handleSend()}
           className="flex-grow bg-slate-50 border p-3 rounded-xl focus:outline-none focus:border-brand-500 text-xs text-slate-800 font-medium"
         />
-        <button onClick={() => handleSend()} className="bg-brand-600 hover:bg-brand-700 text-white p-3 rounded-xl">
+        <button onClick={() => handleSend()} aria-label="Send" className="bg-brand-600 hover:bg-brand-700 text-white p-3 rounded-xl">
           <Send className="w-4.5 h-4.5" />
         </button>
       </div>

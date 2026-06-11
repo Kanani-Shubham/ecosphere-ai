@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://echosphere-ai.netlify.app/sitemap.xml
